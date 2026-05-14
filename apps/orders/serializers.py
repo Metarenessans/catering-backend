@@ -70,7 +70,7 @@ class OrderCreateSerializer(serializers.Serializer):
             comment=comment,
         )
 
-        from apps.catalog.models import Product
+        from ..catalog.models import Product
 
         for item in items_data:
             product_ref = None
