@@ -14,6 +14,7 @@ class FaqItemViewSet(viewsets.ModelViewSet):
     """
     queryset = FaqItem.objects.filter(is_active=True)
     serializer_class = FaqItemSerializer
+    pagination_class = None
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ["question"]
     ordering_fields = ["order"]

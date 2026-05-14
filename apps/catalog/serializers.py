@@ -7,6 +7,12 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ["id", "slug", "name", "order", "is_active"]
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # Frontend expects `id` to be the slug
+        ret["id"] = ret.pop("slug", "")
+        return ret
+
 
 class ProductExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,6 +56,28 @@ class ProductSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "effective_image_url"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # Format matching frontend ProductData exactly
+        return {
+            "id": str(ret.get("id")),
+            "name": ret.get("name"),
+            "categoryId": ret.get("category_slug"),
+            "imageUrl": ret.get("effective_image_url"),
+            "description": ret.get("description", ""),
+            "priceInfo": {
+                "price": float(ret["price"]) if ret.get("price") else 0,
+                "oldPrice": float(ret["old_price"]) if ret.get("old_price") else None,
+            },
+            "extraInfo": [
+                {
+                    "amount": float(info["amount"]),
+                    "unit": info["unit"]
+                }
+                for info in ret.get("extra_info", [])
+            ]
+        }
 
     def get_effective_image_url(self, obj):
         request = self.context.get("request")

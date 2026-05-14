@@ -25,6 +25,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    pagination_class = None
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ["name", "slug"]
     ordering_fields = ["order", "name"]
@@ -52,6 +53,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         .prefetch_related("extra_info")
         .filter(is_active=True)
     )
+    pagination_class = None
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ["name", "description", "category__name"]

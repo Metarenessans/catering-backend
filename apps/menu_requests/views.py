@@ -66,6 +66,7 @@ class AdditionalServiceViewSet(viewsets.ModelViewSet):
     """
     queryset = AdditionalService.objects.all()
     serializer_class = AdditionalServiceSerializer
+    pagination_class = None
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ["label"]
     ordering = ["order"]
@@ -82,6 +83,7 @@ class EventFormatViewSet(viewsets.ModelViewSet):
     """
     queryset = EventFormat.objects.filter(is_active=True)
     serializer_class = EventFormatSerializer
+    pagination_class = None
     filter_backends = [OrderingFilter]
     ordering = ["order"]
 

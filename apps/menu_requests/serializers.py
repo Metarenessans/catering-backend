@@ -9,11 +9,21 @@ class EventFormatSerializer(serializers.ModelSerializer):
         model = EventFormat
         fields = ["id", "name", "order", "is_active"]
 
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["id"] = str(ret["id"])
+        return ret
+
 
 class AdditionalServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdditionalService
         fields = ["id", "label", "description", "order", "is_active"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret["id"] = str(ret["id"])
+        return ret
 
 
 class MenuRequestSerializer(serializers.ModelSerializer):
