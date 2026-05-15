@@ -1,4 +1,5 @@
 from django.db import models
+from apps.catalog.models import Product
 
 
 class AdditionalService(models.Model):
@@ -8,6 +9,15 @@ class AdditionalService(models.Model):
     """
     label = models.CharField(max_length=200, verbose_name="Название услуги")
     description = models.TextField(blank=True, default="", verbose_name="Описание")
+    linked_product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="linked_services",
+        verbose_name="Связанный товар",
+        help_text="Товар, который откроется при клике на 'узнать подробнее'"
+    )
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
     is_active = models.BooleanField(default=True, verbose_name="Активна")
 

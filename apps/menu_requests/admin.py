@@ -56,9 +56,10 @@ class MenuRequestAdmin(admin.ModelAdmin):
 
 @admin.register(AdditionalService)
 class AdditionalServiceAdmin(admin.ModelAdmin):
-    list_display = ["label", "order", "is_active"]
+    list_display = ["label", "linked_product", "order", "is_active"]
     list_editable = ["order", "is_active"]
     search_fields = ["label"]
+    autocomplete_fields = ["linked_product"]
     ordering = ["order"]
 
 

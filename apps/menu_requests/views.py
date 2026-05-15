@@ -64,7 +64,7 @@ class AdditionalServiceViewSet(viewsets.ModelViewSet):
     """
     CRUD для дополнительных услуг (Выездное накрытие, Официанты и т.д.)
     """
-    queryset = AdditionalService.objects.all()
+    queryset = AdditionalService.objects.filter(is_active=True)
     serializer_class = AdditionalServiceSerializer
     pagination_class = None
     filter_backends = [SearchFilter, OrderingFilter]

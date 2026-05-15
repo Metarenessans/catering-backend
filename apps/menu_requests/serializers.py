@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import MenuRequest, AdditionalService, EventFormat
+from apps.catalog.serializers import ProductSerializer
 
 import datetime
 
@@ -16,9 +17,11 @@ class EventFormatSerializer(serializers.ModelSerializer):
 
 
 class AdditionalServiceSerializer(serializers.ModelSerializer):
+    linked_product = ProductSerializer(read_only=True)
+
     class Meta:
         model = AdditionalService
-        fields = ["id", "label", "description", "order", "is_active"]
+        fields = ["id", "label", "description", "order", "is_active", "linked_product"]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
