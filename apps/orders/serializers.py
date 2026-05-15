@@ -22,6 +22,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "subtotal"]
 
 
+class PriceInfoSerializer(serializers.Serializer):
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
 class OrderItemCreateSerializer(serializers.Serializer):
     """
     Входной формат позиции из frontend-корзины.
@@ -29,9 +33,10 @@ class OrderItemCreateSerializer(serializers.Serializer):
     """
     name = serializers.CharField()
     imageUrl = serializers.URLField(allow_blank=True, default="")
-    price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    priceInfo = PriceInfoSerializer()
     quantity = serializers.IntegerField(min_value=1, max_value=999)
-    product_id = serializers.IntegerField(required=False, allow_null=True)
+    id = serializers.CharField(required=False, allow_null=True)
+    productId = serializers.IntegerField(required=False, allow_null=True)
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -53,7 +58,7 @@ class OrderCreateSerializer(serializers.Serializer):
 
         # Рассчитываем суммы на backend — не доверяем данным frontend
         total_price = sum(
-            item["price"] * item["quantity"] for item in items_data
+            item["priceInfo"]["price"] * item["quantity"] for item in items_data
         )
         if total_price < MIN_ORDER:
             raise serializers.ValidationError(
@@ -74,15 +79,17 @@ class OrderCreateSerializer(serializers.Serializer):
 
         for item in items_data:
             product_ref = None
-            if item.get("product_id"):
-                product_ref = Product.objects.filter(pk=item["product_id"]).first()
+            # Проверяем и productId, и id (на случай если frontend передаст базу в id)
+            p_id = item.get("productId") or item.get("id")
+            if p_id and str(p_id).isdigit():
+                product_ref = Product.objects.filter(pk=int(p_id)).first()
 
             OrderItem.objects.create(
                 order=order,
                 product=product_ref,
                 product_name=item["name"],
                 product_image_url=item.get("imageUrl", ""),
-                price=item["price"],
+                price=item["priceInfo"]["price"],
                 quantity=item["quantity"],
             )
 
