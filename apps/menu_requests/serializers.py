@@ -56,7 +56,7 @@ class MenuRequestCreateSerializer(serializers.Serializer):
     Минимальная валидация для публичного endpoint.
     """
     format = serializers.CharField(max_length=100)
-    guests = serializers.IntegerField(min_value=1)
+    guests = serializers.CharField(max_length=100, required=False, allow_blank=True)
     date = serializers.DateField()
     additional = serializers.ListField(
         child=serializers.CharField(),

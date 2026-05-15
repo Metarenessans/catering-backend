@@ -52,7 +52,7 @@ class MenuRequest(models.Model):
 
     # Step 1 fields
     format = models.CharField(max_length=100, verbose_name="Формат мероприятия")
-    guests = models.PositiveIntegerField(verbose_name="Количество гостей")
+    guests = models.CharField(max_length=100, blank=True, default="", verbose_name="Количество гостей")
     date = models.DateField(verbose_name="Дата мероприятия")
     food_preferences = models.JSONField(
         default=list,
