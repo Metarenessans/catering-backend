@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from .models import CompanyInfo
+from .models import CompanyInfo, FooterNavigation
 
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
+    # ... existing fields ...
     class Meta:
         model = CompanyInfo
         fields = [
@@ -22,3 +23,11 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "updated_at"]
+
+
+class FooterNavigationSerializer(serializers.ModelSerializer):
+    category_slug = serializers.ReadOnlyField(source="category.slug")
+
+    class Meta:
+        model = FooterNavigation
+        fields = ["id", "name", "category_slug", "order"]

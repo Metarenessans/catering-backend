@@ -1,18 +1,10 @@
 from rest_framework import generics, permissions
-from rest_framework.response import Response
-
-from .models import CompanyInfo
-from .serializers import CompanyInfoSerializer
+from .models import CompanyInfo, FooterNavigation
+from .serializers import CompanyInfoSerializer, FooterNavigationSerializer
 
 
 class CompanyInfoView(generics.RetrieveUpdateAPIView):
-    """
-    Информация о компании — singleton endpoint.
-
-    GET   /api/v1/company/  — получить данные (публично)
-    PUT   /api/v1/company/  — обновить данные (только admin)
-    PATCH /api/v1/company/  — частично обновить (только admin)
-    """
+    # ... existing code ...
     serializer_class = CompanyInfoSerializer
 
     def get_permissions(self):
@@ -22,3 +14,13 @@ class CompanyInfoView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return CompanyInfo.load()
+
+
+class FooterNavigationListView(generics.ListAPIView):
+    """
+    Список элементов навигации в футере.
+    """
+    queryset = FooterNavigation.objects.all()
+    serializer_class = FooterNavigationSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None  # Отключаем пагинацию для этого списка

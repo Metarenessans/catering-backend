@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CompanyInfo
+from .models import CompanyInfo, FooterNavigation
 
 
 @admin.register(CompanyInfo)
@@ -14,3 +14,10 @@ class CompanyInfoAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Запрещаем удаление singleton-записи."""
         return False
+
+
+@admin.register(FooterNavigation)
+class FooterNavigationAdmin(admin.ModelAdmin):
+    list_display = ["name", "category", "order"]
+    list_editable = ["order"]
+    list_filter = ["category"]

@@ -1,4 +1,5 @@
 from django.db import models
+from apps.catalog.models import Category
 
 
 class CompanyInfo(models.Model):
@@ -71,3 +72,26 @@ class CompanyInfo(models.Model):
             },
         )
         return obj
+
+
+class FooterNavigation(models.Model):
+    """
+    Элементы навигации в футере (раздел КАТАЛОГ).
+    Связаны с реальными категориями каталога.
+    """
+    name = models.CharField(max_length=100, verbose_name="Текст ссылки")
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="footer_navs",
+        verbose_name="Категория",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
+
+    class Meta:
+        verbose_name = "Навигация в футере"
+        verbose_name_plural = "Навигация в футере"
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
