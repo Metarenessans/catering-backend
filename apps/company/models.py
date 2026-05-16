@@ -16,6 +16,12 @@ class CompanyInfo(models.Model):
     max_messenger = models.URLField(
         max_length=300, blank=True, default="", verbose_name="MAX мессенджер"
     )
+    reviews_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        default="",
+        verbose_name="Ссылка на отзывы (Авито)",
+    )
     min_order_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -61,6 +67,7 @@ class CompanyInfo(models.Model):
                 "email": "chef-meal@mail.ru",
                 "telegram": "https://t.me/Lyud_MILKA9",
                 "max_messenger": "https://max.me/Lyud_MILKA9",
+                "reviews_url": "https://www.avito.ru/user/6df047abcc3b2820419afccd9491017e/profile/all/predlozheniya_uslug?src=sharing&sellerId=6df047abcc3b2820419afccd9491017e",
             },
         )
         return obj

@@ -15,6 +15,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             "email",
             "telegram",
             "max_messenger",
+            "reviews_url",
             "min_order_amount",
             "free_delivery_threshold",
             "delivery_cost",
