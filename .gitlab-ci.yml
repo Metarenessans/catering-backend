@@ -40,7 +40,7 @@ deploy_backend:
           echo 'Migration failed! Checking database container status...'
           if docker ps --filter name=catering_db_container --status running | grep -q catering_db_container; then
             echo 'Database container is running. Attempting auto-recovery by resetting postgres password...'
-            docker exec -i catering_db_container psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" || true
+            docker exec -i catering_db_container psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'C@t3r1ng_S3cur3_Db_2026!';\" || true
             echo 'Retrying migrations...'
             ./venv/bin/python manage.py migrate
           else

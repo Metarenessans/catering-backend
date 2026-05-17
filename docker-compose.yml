@@ -6,9 +6,9 @@ services:
     environment:
       POSTGRES_DB: catering_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: C@t3r1ng_S3cur3_Db_2026!
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
