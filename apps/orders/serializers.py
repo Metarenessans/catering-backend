@@ -42,9 +42,12 @@ class OrderItemCreateSerializer(serializers.Serializer):
 class OrderCreateSerializer(serializers.Serializer):
     """
     Создание заказа из данных, которые frontend передаёт в onSubmit:
-    { items: CartItem[], totalPrice, finalPrice }
+    { items: CartItem[], totalPrice, finalPrice, name, phone, contact_method }
     """
     items = OrderItemCreateSerializer(many=True)
+    name = serializers.CharField(max_length=200, required=True)
+    phone = serializers.CharField(max_length=30, required=True)
+    contact_method = serializers.CharField(max_length=50, default="Позвонить мне", required=False)
     comment = serializers.CharField(allow_blank=True, default="", required=False)
 
     def validate_items(self, items):
@@ -55,6 +58,9 @@ class OrderCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         items_data = validated_data.pop("items")
         comment = validated_data.get("comment", "")
+        name = validated_data.get("name", "")
+        phone = validated_data.get("phone", "")
+        contact_method = validated_data.get("contact_method", "Позвонить мне")
 
         # Рассчитываем суммы на backend — не доверяем данным frontend
         total_price = sum(
@@ -69,6 +75,9 @@ class OrderCreateSerializer(serializers.Serializer):
         final_price = total_price + delivery_cost
 
         order = Order.objects.create(
+            name=name,
+            phone=phone,
+            contact_method=contact_method,
             total_price=total_price,
             delivery_cost=delivery_cost,
             final_price=final_price,
@@ -104,6 +113,9 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "status",
+            "name",
+            "phone",
+            "contact_method",
             "total_price",
             "delivery_cost",
             "final_price",

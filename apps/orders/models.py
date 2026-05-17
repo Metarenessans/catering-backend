@@ -26,6 +26,23 @@ class Order(models.Model):
         default=StatusChoices.NEW,
         verbose_name="Статус",
     )
+    name = models.CharField(
+        max_length=200,
+        default="",
+        blank=True,
+        verbose_name="Имя клиента",
+    )
+    phone = models.CharField(
+        max_length=30,
+        default="",
+        blank=True,
+        verbose_name="Телефон",
+    )
+    contact_method = models.CharField(
+        max_length=50,
+        default="Позвонить мне",
+        verbose_name="Способ связи",
+    )
     total_price = models.DecimalField(
         max_digits=12,
         decimal_places=2,
