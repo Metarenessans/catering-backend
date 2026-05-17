@@ -18,6 +18,6 @@ class CompanyInfoAdmin(admin.ModelAdmin):
 
 @admin.register(FooterNavigation)
 class FooterNavigationAdmin(admin.ModelAdmin):
-    list_display = ["name", "category", "order"]
+    list_display = ["category", "order"]
     list_editable = ["order"]
     list_filter = ["category"]

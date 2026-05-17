@@ -26,6 +26,8 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
 
 
 class FooterNavigationSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source="category.id")
+    name = serializers.ReadOnlyField(source="category.name")
     category_slug = serializers.ReadOnlyField(source="category.slug")
 
     class Meta:

@@ -79,7 +79,6 @@ class FooterNavigation(models.Model):
     Элементы навигации в футере (раздел КАТАЛОГ).
     Связаны с реальными категориями каталога.
     """
-    name = models.CharField(max_length=100, verbose_name="Текст ссылки")
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
@@ -91,7 +90,7 @@ class FooterNavigation(models.Model):
     class Meta:
         verbose_name = "Навигация в футере"
         verbose_name_plural = "Навигация в футере"
-        ordering = ["order", "name"]
+        ordering = ["order", "category__name"]
 
     def __str__(self):
-        return self.name
+        return self.category.name if self.category else f"FooterNav #{self.id}"
