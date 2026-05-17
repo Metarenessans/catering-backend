@@ -14,68 +14,96 @@ deploy_backend:
     - chmod 644 ~/.ssh/known_hosts
   script:
     - |
-      ssh $SERVER_USER@$SERVER_IP "
+      ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
         set -e
-        echo 'Starting secure zero-downtime backend deployment...'
-        
+
+        BUILD_DIR=/root/catering/backend_build
+        LIVE_DIR=/root/catering/backend
+
+        echo "========================================"
+        echo " BACKEND ZERO-DOWNTIME DEPLOY START"
+        echo "========================================"
+
         # 1. Clean up any previous failed build
-        rm -rf /root/catering/backend_build /root/catering/backend_old
-        
-        # 2. Copy current live files to build directory (including virtualenv for fast pip install)
-        cp -rp /root/catering/backend /root/catering/backend_build
-        
-        # 3. Pull new code into build directory
-        cd /root/catering/backend_build
+        echo "[1/9] Cleaning up stale build directory..."
+        rm -rf "$BUILD_DIR" /root/catering/backend_old
+
+        # 2. Copy current live backend to build dir
+        #    This includes venv so pip install only installs diffs
+        echo "[2/9] Copying live backend to build dir..."
+        cp -rp "$LIVE_DIR" "$BUILD_DIR"
+
+        # 3. Pull new code into build dir (live dir is UNTOUCHED)
+        echo "[3/9] Pulling latest code into build dir..."
+        cd "$BUILD_DIR"
         git reset --hard
         git pull origin main
-        
-        # 4. Install dependencies
-        ./venv/bin/pip install -r requirements.txt
-        
-        # 5. Check Django code and configuration integrity
+
+        # 4. Install Python dependencies
+        echo "[4/9] Installing Python dependencies..."
+        ./venv/bin/pip install --quiet -r requirements.txt
+
+        # 5. Django system check (catches config errors, missing settings, etc.)
+        echo "[5/9] Running Django system check..."
+        ./venv/bin/python manage.py check --deploy 2>&1 | grep -v "WARNINGS" || true
+        # Run again strictly to catch ERRORS (not warnings)
         ./venv/bin/python manage.py check
-        
+
         # 6. Apply database migrations with auto-recovery for password issues
-        echo 'Applying database migrations...'
-        if ! ./venv/bin/python manage.py migrate; then
-          echo 'Migration failed! Checking database container status...'
-          if docker ps --filter name=catering_db_container --status running | grep -q catering_db_container; then
-            echo 'Database container is running. Attempting auto-recovery by resetting postgres password...'
-            docker exec -i catering_db_container psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'C@t3r1ng_S3cur3_Db_2026!';\" || true
-            echo 'Retrying migrations...'
-            ./venv/bin/python manage.py migrate
-          else
-            echo 'Database container is not running or other error occurred!'
-            exit 1
+        echo "[6/9] Applying database migrations..."
+        MIGRATE_OK=0
+        if ./venv/bin/python manage.py migrate; then
+          MIGRATE_OK=1
+        else
+          echo "  -> Migration failed! Checking database container..."
+          if docker ps --filter name=catering_db_container --filter status=running | grep -q catering_db_container; then
+            echo "  -> DB container is running. Attempting password auto-recovery..."
+            docker exec -i catering_db_container psql -U postgres \
+              -c "ALTER USER postgres WITH PASSWORD 'C@t3r1ng_S3cur3_Db_2026!';" || true
+            echo "  -> Retrying migration..."
+            if ./venv/bin/python manage.py migrate; then
+              MIGRATE_OK=1
+            fi
           fi
         fi
-        
-        # 7. Collect static files
-        echo 'Collecting static files...'
-        ./venv/bin/python manage.py collectstatic --noinput
-        
-        # 8. Atomic directory swap
-        echo 'Validation passed! Swapping directories atomically...'
-        mv /root/catering/backend /root/catering/backend_old
-        mv /root/catering/backend_build /root/catering/backend
-        rm -rf /root/catering/backend_old
-        
-        # 9. Restart service in PM2
-        pm2 restart backend
-        
-        # 10. Verify deployment health
-        echo 'Verifying deployment health...'
-        sleep 3
-        if curl -s -f http://localhost:8000/api/v1/catalog/ > /dev/null; then
-          echo 'Verification successful! Backend is healthy and serving APIs.'
-          echo 'Deployment completed successfully!'
-        else
-          echo 'Verification failed! Backend is not healthy. Showing PM2 logs:'
-          pm2 logs backend --lines 30 --no-daemon
+
+        if [ "$MIGRATE_OK" -eq 0 ]; then
+          echo "ERROR: Migrations failed after auto-recovery attempt. Aborting deployment."
+          echo "Live backend is UNTOUCHED."
           exit 1
         fi
-      "
+
+        # 7. Collect static files
+        echo "[7/9] Collecting static files..."
+        ./venv/bin/python manage.py collectstatic --noinput --clear -v 0
+
+        # 8. Atomic directory swap
+        #    Only happens after ALL validation steps above pass
+        echo "[8/9] Validation passed! Performing atomic directory swap..."
+        mv "$LIVE_DIR" /root/catering/backend_old
+        mv "$BUILD_DIR" "$LIVE_DIR"
+        rm -rf /root/catering/backend_old
+
+        # 9. Restart the backend service
+        echo "[9/9] Restarting backend via PM2..."
+        pm2 restart backend
+
+        # 10. Deployment health check
+        echo "  Waiting for backend to come up..."
+        sleep 5
+        if curl -sf http://localhost:8000/api/v1/catalog/ > /dev/null; then
+          echo ""
+          echo "========================================"
+          echo " DEPLOYMENT SUCCESSFUL!"
+          echo " Backend API is live and healthy."
+          echo "========================================"
+        else
+          echo "ERROR: Health check failed! Backend may be down."
+          echo "Showing PM2 logs:"
+          pm2 logs backend --lines 50 --nostream
+          exit 1
+        fi
+      ENDSSH
   only:
     - main
   when: manual
-
