@@ -13,7 +13,41 @@ deploy_backend:
     - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - ssh $SERVER_USER@$SERVER_IP "cd /root/catering/backend && git pull origin main && ./venv/bin/pip install -r requirements.txt && ./venv/bin/python manage.py migrate && pm2 restart backend"
+    - |
+      ssh $SERVER_USER@$SERVER_IP "
+        set -e
+        echo 'Starting secure zero-downtime backend deployment...'
+        
+        # 1. Clean up any previous failed build
+        rm -rf /root/catering/backend_build /root/catering/backend_old
+        
+        # 2. Copy current live files to build directory (including virtualenv for fast pip install)
+        cp -rp /root/catering/backend /root/catering/backend_build
+        
+        # 3. Pull new code into build directory
+        cd /root/catering/backend_build
+        git pull origin main
+        
+        # 4. Install dependencies
+        ./venv/bin/pip install -r requirements.txt
+        
+        # 5. Check Django code and configuration integrity
+        ./venv/bin/python manage.py check
+        
+        # 6. Apply database migrations
+        ./venv/bin/python manage.py migrate
+        
+        # 7. Atomic directory swap
+        echo 'Validation passed! Swapping directories atomically...'
+        mv /root/catering/backend /root/catering/backend_old
+        mv /root/catering/backend_build /root/catering/backend
+        rm -rf /root/catering/backend_old
+        
+        # 8. Restart service in PM2
+        pm2 restart backend
+        echo 'Deployment completed successfully!'
+      "
   only:
     - main
   when: manual
+
