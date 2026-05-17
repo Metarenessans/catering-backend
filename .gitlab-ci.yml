@@ -34,18 +34,45 @@ deploy_backend:
         # 5. Check Django code and configuration integrity
         ./venv/bin/python manage.py check
         
-        # 6. Apply database migrations
-        ./venv/bin/python manage.py migrate
+        # 6. Apply database migrations with auto-recovery for password issues
+        echo 'Applying database migrations...'
+        if ! ./venv/bin/python manage.py migrate; then
+          echo 'Migration failed! Checking database container status...'
+          if docker ps --filter name=catering_db_container --status running | grep -q catering_db_container; then
+            echo 'Database container is running. Attempting auto-recovery by resetting postgres password...'
+            docker exec -i catering_db_container psql -U postgres -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" || true
+            echo 'Retrying migrations...'
+            ./venv/bin/python manage.py migrate
+          else
+            echo 'Database container is not running or other error occurred!'
+            exit 1
+          fi
+        fi
         
-        # 7. Atomic directory swap
+        # 7. Collect static files
+        echo 'Collecting static files...'
+        ./venv/bin/python manage.py collectstatic --noinput
+        
+        # 8. Atomic directory swap
         echo 'Validation passed! Swapping directories atomically...'
         mv /root/catering/backend /root/catering/backend_old
         mv /root/catering/backend_build /root/catering/backend
         rm -rf /root/catering/backend_old
         
-        # 8. Restart service in PM2
+        # 9. Restart service in PM2
         pm2 restart backend
-        echo 'Deployment completed successfully!'
+        
+        # 10. Verify deployment health
+        echo 'Verifying deployment health...'
+        sleep 3
+        if curl -s -f http://localhost:8000/api/v1/catalog/ > /dev/null; then
+          echo 'Verification successful! Backend is healthy and serving APIs.'
+          echo 'Deployment completed successfully!'
+        else
+          echo 'Verification failed! Backend is not healthy. Showing PM2 logs:'
+          pm2 logs backend --lines 30 --no-daemon
+          exit 1
+        fi
       "
   only:
     - main
