@@ -8,6 +8,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
         "id",
         "name",
         "phone",
+        "contact_method",
         "format",
         "guests",
         "date",
@@ -29,7 +30,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
         (
             "Контактные данные",
             {
-                "fields": ["name", "phone", "consent"],
+                "fields": ["name", "phone", "contact_method", "consent"],
             },
         ),
         (

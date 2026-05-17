@@ -80,6 +80,11 @@ class MenuRequest(models.Model):
     )
     name = models.CharField(max_length=200, verbose_name="Имя клиента")
     phone = models.CharField(max_length=30, verbose_name="Телефон")
+    contact_method = models.CharField(
+        max_length=50,
+        default="Позвонить мне",
+        verbose_name="Способ связи",
+    )
     consent = models.BooleanField(default=True, verbose_name="Согласие с политикой")
 
     # Meta

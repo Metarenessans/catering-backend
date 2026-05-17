@@ -44,6 +44,7 @@ class MenuRequestSerializer(serializers.ModelSerializer):
             "additional_services",
             "name",
             "phone",
+            "contact_method",
             "consent",
             "status",
             "notes",
@@ -68,6 +69,7 @@ class MenuRequestCreateSerializer(serializers.Serializer):
     )
     name = serializers.CharField(max_length=200)
     phone = serializers.CharField(max_length=30)
+    contact_method = serializers.CharField(max_length=50, default="Позвонить мне")
     consent = serializers.BooleanField()
 
     def validate_date(self, value):
