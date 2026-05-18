@@ -1,12 +1,19 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from .models import Category, Product, ProductExtraInfo
+from .models import Category, Product, ProductExtraInfo, ProductOption
 
 
 class ProductExtraInfoInline(admin.TabularInline):
     model = ProductExtraInfo
     extra = 1
     fields = ["amount", "unit", "order"]
+    ordering = ["order"]
+
+
+class ProductOptionInline(admin.TabularInline):
+    model = ProductOption
+    extra = 1
+    fields = ["name", "price", "old_price", "order"]
     ordering = ["order"]
 
 
@@ -37,7 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ["order", "name"]
     list_editable = ["price", "is_active", "is_featured", "order"]
     autocomplete_fields = ["category"]
-    inlines = [ProductExtraInfoInline]
+    inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
 
     def image_preview(self, obj):

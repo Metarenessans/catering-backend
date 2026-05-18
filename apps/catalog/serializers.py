@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductExtraInfo
+from .models import Category, Product, ProductExtraInfo, ProductOption
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -20,12 +20,19 @@ class ProductExtraInfoSerializer(serializers.ModelSerializer):
         fields = ["id", "amount", "unit", "order"]
 
 
+class ProductOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductOption
+        fields = ["id", "name", "price", "old_price", "order"]
+
+
 class ProductSerializer(serializers.ModelSerializer):
     """
     Сериализатор продукта.
     Формат ответа максимально близок к структуре, используемой во frontend.
     """
     extra_info = ProductExtraInfoSerializer(many=True, read_only=True)
+    options = ProductOptionSerializer(many=True, read_only=True)
     category_slug = serializers.SlugRelatedField(
         source="category",
         slug_field="slug",
@@ -52,6 +59,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_featured",
             "order",
             "extra_info",
+            "options",
             "created_at",
             "updated_at",
         ]
@@ -76,6 +84,15 @@ class ProductSerializer(serializers.ModelSerializer):
                     "unit": info["unit"]
                 }
                 for info in ret.get("extra_info", [])
+            ],
+            "options": [
+                {
+                    "id": str(opt["id"]),
+                    "name": opt["name"],
+                    "price": float(opt["price"]),
+                    "oldPrice": float(opt["old_price"]) if opt.get("old_price") else None,
+                }
+                for opt in ret.get("options", [])
             ]
         }
 

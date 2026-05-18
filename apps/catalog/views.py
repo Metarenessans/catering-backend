@@ -61,7 +61,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering = ["order", "name"]
 
     def get_queryset(self):
-        qs = Product.objects.select_related("category").prefetch_related("extra_info")
+        qs = Product.objects.select_related("category").prefetch_related("extra_info", "options")
         # Admins see all products; public only sees active ones
         if self.request.user and self.request.user.is_staff:
             return qs

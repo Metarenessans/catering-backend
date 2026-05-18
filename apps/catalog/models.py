@@ -118,3 +118,37 @@ class Product(models.Model):
         if self.image:
             return self.image.url
         return self.image_url
+
+
+class ProductOption(models.Model):
+    """
+    Вариант цены/наполнения для карточки товара (например, 10, 20, 30, 50 персон).
+    """
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="options",
+        verbose_name="Продукт",
+    )
+    name = models.CharField(max_length=200, verbose_name="Название варианта")
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Цена варианта (₽)",
+    )
+    old_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Старая цена варианта (₽)",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
+
+    class Meta:
+        verbose_name = "Вариант товара"
+        verbose_name_plural = "Варианты товара"
+        ordering = ["order"]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name} ({self.price} ₽)"
