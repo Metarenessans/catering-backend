@@ -49,6 +49,7 @@ class OrderCreateSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=30, required=True)
     contact_method = serializers.CharField(max_length=50, default="Позвонить мне", required=False)
     comment = serializers.CharField(allow_blank=True, default="", required=False)
+    cart_link = serializers.URLField(allow_blank=True, default="", required=False)
 
     def validate_items(self, items):
         if not items:
@@ -58,6 +59,7 @@ class OrderCreateSerializer(serializers.Serializer):
     def create(self, validated_data):
         items_data = validated_data.pop("items")
         comment = validated_data.get("comment", "")
+        cart_link = validated_data.get("cart_link", "")
         name = validated_data.get("name", "")
         phone = validated_data.get("phone", "")
         contact_method = validated_data.get("contact_method", "Позвонить мне")
@@ -82,6 +84,7 @@ class OrderCreateSerializer(serializers.Serializer):
             delivery_cost=delivery_cost,
             final_price=final_price,
             comment=comment,
+            cart_link=cart_link,
         )
 
         from ..catalog.models import Product
@@ -120,6 +123,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "delivery_cost",
             "final_price",
             "comment",
+            "cart_link",
             "items",
             "created_at",
             "updated_at",

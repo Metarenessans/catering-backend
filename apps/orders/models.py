@@ -60,6 +60,12 @@ class Order(models.Model):
         verbose_name="Итоговая сумма (₽)",
     )
     comment = models.TextField(blank=True, default="", verbose_name="Комментарий")
+    cart_link = models.URLField(
+        max_length=3000,
+        blank=True,
+        default="",
+        verbose_name="Ссылка на корзину",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 

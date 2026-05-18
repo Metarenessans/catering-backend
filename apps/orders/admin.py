@@ -37,10 +37,33 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ["status", "created_at"]
     search_fields = ["id", "comment"]
     ordering = ["-created_at"]
-    readonly_fields = ["total_price", "delivery_cost", "final_price", "created_at", "updated_at"]
+    readonly_fields = ["total_price", "delivery_cost", "final_price", "cart_link_clickable", "created_at", "updated_at"]
+    fields = [
+        "status",
+        "name",
+        "phone",
+        "contact_method",
+        "total_price",
+        "delivery_cost",
+        "final_price",
+        "comment",
+        "cart_link_clickable",
+        "created_at",
+        "updated_at",
+    ]
     list_editable = ["status"]
     inlines = [OrderItemInline]
 
     @admin.display(description="Позиций")
     def items_count(self, obj):
         return obj.items.count()
+
+    @admin.display(description="Ссылка на корзину")
+    def cart_link_clickable(self, obj):
+        if obj.cart_link:
+            return mark_safe(
+                f'<a href="{obj.cart_link}" target="_blank" style="color: #007bff; text-decoration: underline; word-break: break-all;">'
+                f'{obj.cart_link}</a>'
+            )
+        return "Нет ссылки"
+
