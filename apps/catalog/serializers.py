@@ -66,44 +66,45 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at", "effective_image_url"]
 
     def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        # Format matching frontend ProductData exactly
-        return {
-            "id": str(ret.get("id")),
-            "name": ret.get("name"),
-            "categoryId": ret.get("category_slug"),
-            "imageUrl": ret.get("effective_image_url"),
-            "description": ret.get("description", ""),
-            "priceInfo": {
-                "price": float(ret["price"]) if ret.get("price") else 0,
-                "oldPrice": float(ret["old_price"]) if ret.get("old_price") else None,
-            },
-            "extraInfo": [
-                {
-                    "amount": float(info["amount"]),
-                    "unit": info["unit"]
-                }
-                for info in ret.get("extra_info", [])
-            ],
-            "options": [
-                {
-                    "id": str(opt["id"]),
-                    "name": opt["name"],
-                    "price": float(opt["price"]),
-                    "oldPrice": float(opt["old_price"]) if opt.get("old_price") else None,
-                }
-                for opt in ret.get("options", [])
-            ]
-        }
-
-    def get_effective_image_url(self, obj):
+        # FAST PATH: Read directly from the model instance instead of DRF's slow ModelSerializer loop
         request = self.context.get("request")
-        url = obj.effective_image_url
-        if url.startswith("http://") or url.startswith("https://"):
-            return url
-        if request and url.startswith("/"):
-            return request.build_absolute_uri(url)
-        return url
+        
+        # 1. Resolve image URL directly
+        url = instance.effective_image_url
+        if url and not (url.startswith("http://") or url.startswith("https://")):
+            if request and url.startswith("/"):
+                url = request.build_absolute_uri(url)
+                
+        # 2. Extract nested info directly from prefetched relations (no extra SQL queries due to prefetch_related)
+        extra_info_list = [
+            {"amount": float(info.amount), "unit": info.unit}
+            for info in instance.extra_info.all()
+        ]
+        
+        options_list = [
+            {
+                "id": str(opt.id),
+                "name": opt.name,
+                "price": float(opt.price),
+                "oldPrice": float(opt.old_price) if opt.old_price is not None else None,
+            }
+            for opt in instance.options.all()
+        ]
+        
+        # 3. Build response dictionary instantly
+        return {
+            "id": str(instance.id),
+            "name": instance.name,
+            "categoryId": instance.category.slug if instance.category_id else None,
+            "imageUrl": url,
+            "description": instance.description or "",
+            "priceInfo": {
+                "price": float(instance.price) if instance.price is not None else 0,
+                "oldPrice": float(instance.old_price) if instance.old_price is not None else None,
+            },
+            "extraInfo": extra_info_list,
+            "options": options_list
+        }
 
 
 class ProductWriteSerializer(serializers.ModelSerializer):
