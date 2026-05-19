@@ -116,7 +116,15 @@ class Product(models.Model):
     def effective_image_url(self):
         """Возвращает URL изображения: сначала загруженное, затем внешнее."""
         if self.image:
-            return self.image.url
+            url = self.image.url
+            from django.conf import settings
+            import os
+            try:
+                if settings.DEBUG and not os.path.exists(self.image.path):
+                    return f"https://chefmil-furshet.ru{url}"
+            except ValueError:
+                pass
+            return url
         return self.image_url
 
 

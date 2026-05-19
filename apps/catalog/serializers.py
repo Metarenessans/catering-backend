@@ -98,10 +98,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_effective_image_url(self, obj):
         request = self.context.get("request")
-        if obj.image:
-            url = obj.image.url
-            return request.build_absolute_uri(url) if request else url
-        return obj.image_url
+        url = obj.effective_image_url
+        if url.startswith("http://") or url.startswith("https://"):
+            return url
+        if request and url.startswith("/"):
+            return request.build_absolute_uri(url)
+        return url
 
 
 class ProductWriteSerializer(serializers.ModelSerializer):
