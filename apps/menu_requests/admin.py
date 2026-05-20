@@ -105,16 +105,27 @@ class MenuRequestAdmin(admin.ModelAdmin):
 
 @admin.register(AdditionalService)
 class AdditionalServiceAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ["label", "linked_product", "order", "is_active"]
+    list_display = ["order", "label", "linked_product", "is_active"]
     list_editable = ["is_active"]
     search_fields = ["label"]
     autocomplete_fields = ["linked_product"]
     ordering = ["order"]
 
+    class Media:
+        css = {
+            "all": ("admin/css/sortable_custom.css",)
+        }
+
 
 @admin.register(EventFormat)
 class EventFormatAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ["name", "order", "is_active"]
+    list_display = ["order", "name", "is_active"]
     list_editable = ["is_active"]
     search_fields = ["name"]
     ordering = ["order"]
+
+    class Media:
+        css = {
+            "all": ("admin/css/sortable_custom.css",)
+        }
+

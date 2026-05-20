@@ -1,0 +1,58 @@
+/* Custom styling to shrink and center the django-admin-sortable2 drag handles */
+
+/* Target list view reorder column headers and cells */
+.change-list table thead th.column-_reorder_,
+.change-list table tbody td.field-_reorder_ {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    text-align: center !important;
+    padding: 6px 4px !important;
+}
+
+/* Hide header text or format the header of reorder column */
+.change-list table thead th.column-_reorder_ .text a {
+    display: none !important;
+}
+
+/* Increase the size of the drag handle to 25px by 25px for comfortable hovering and grab target */
+.change-list table tbody td.field-_reorder_ .drag.handle {
+    width: 25px !important;
+    height: 25px !important;
+    background-size: 20px 20px !important; /* Scale up the grab dots icon */
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    margin: 0 auto !important;
+    opacity: 0.65 !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    cursor: move !important;
+}
+
+/* Highlight drag handle on hover */
+.change-list table tbody td.field-_reorder_ .drag.handle:hover {
+    opacity: 1.0 !important;
+    transform: scale(1.15) !important;
+}
+
+/* Target Inline Tabular/Stacked drag handle column and icon */
+.inline-group .tabular td.field-_reorder_ {
+    width: 42px !important;
+    min-width: 42px !important;
+    padding: 4px !important;
+}
+
+.inline-group .tabular td.field-_reorder_ .drag.handle {
+    width: 25px !important;
+    height: 25px !important;
+    background-size: 20px 20px !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    margin: 0 auto !important;
+    opacity: 0.65 !important;
+    cursor: move !important;
+}
+
+.inline-group .tabular td.field-_reorder_ .drag.handle:hover {
+    opacity: 1.0 !important;
+    transform: scale(1.15) !important;
+}

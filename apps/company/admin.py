@@ -19,7 +19,13 @@ class CompanyInfoAdmin(admin.ModelAdmin):
 
 @admin.register(FooterNavigation)
 class FooterNavigationAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ["category", "order"]
+    list_display = ["order", "category"]
     list_filter = ["category"]
     ordering = ["order"]
+
+    class Media:
+        css = {
+            "all": ("admin/css/sortable_custom.css",)
+        }
+
 
