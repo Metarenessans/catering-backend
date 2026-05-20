@@ -1,4 +1,5 @@
 from django.contrib import admin
+from adminsortable2.admin import SortableAdminMixin
 from .models import CompanyInfo, FooterNavigation
 
 
@@ -17,7 +18,8 @@ class CompanyInfoAdmin(admin.ModelAdmin):
 
 
 @admin.register(FooterNavigation)
-class FooterNavigationAdmin(admin.ModelAdmin):
+class FooterNavigationAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ["category", "order"]
-    list_editable = ["order"]
     list_filter = ["category"]
+    ordering = ["order"]
+

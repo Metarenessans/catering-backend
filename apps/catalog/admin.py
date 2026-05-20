@@ -1,34 +1,35 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
 from .models import Category, Product, ProductExtraInfo, ProductOption
 
 
-class ProductExtraInfoInline(admin.TabularInline):
+class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ProductExtraInfo
     extra = 1
-    fields = ["amount", "unit", "order"]
+    fields = ["amount", "unit"]
     ordering = ["order"]
 
 
-class ProductOptionInline(admin.TabularInline):
+class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ProductOption
     extra = 1
-    fields = ["name", "price", "old_price", "order"]
+    fields = ["name", "price", "old_price"]
     ordering = ["order"]
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ["name", "slug", "order", "is_active"]
     list_filter = ["is_active"]
     search_fields = ["name", "slug"]
-    ordering = ["order", "name"]
-    list_editable = ["order", "is_active"]
+    ordering = ["order"]
+    list_editable = ["is_active"]
     prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = [
         "name",
         "category",
@@ -41,11 +42,12 @@ class ProductAdmin(admin.ModelAdmin):
     ]
     list_filter = ["category", "is_active", "is_featured"]
     search_fields = ["name", "description"]
-    ordering = ["order", "name"]
-    list_editable = ["price", "is_active", "is_featured", "order"]
+    ordering = ["order"]
+    list_editable = ["price", "is_active", "is_featured"]
     autocomplete_fields = ["category"]
     inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
+
 
     def image_preview(self, obj):
         url = obj.effective_image_url

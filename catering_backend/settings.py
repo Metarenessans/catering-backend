@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_filters",
     "drf_spectacular",
+    "adminsortable2",
     # Local apps
     "apps.catalog",
     "apps.orders",

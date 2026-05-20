@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from adminsortable2.admin import SortableAdminMixin
 from .models import MenuRequest, AdditionalService, EventFormat
 
 
@@ -103,17 +104,17 @@ class MenuRequestAdmin(admin.ModelAdmin):
 
 
 @admin.register(AdditionalService)
-class AdditionalServiceAdmin(admin.ModelAdmin):
+class AdditionalServiceAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ["label", "linked_product", "order", "is_active"]
-    list_editable = ["order", "is_active"]
+    list_editable = ["is_active"]
     search_fields = ["label"]
     autocomplete_fields = ["linked_product"]
     ordering = ["order"]
 
 
 @admin.register(EventFormat)
-class EventFormatAdmin(admin.ModelAdmin):
+class EventFormatAdmin(SortableAdminMixin, admin.ModelAdmin):
     list_display = ["name", "order", "is_active"]
-    list_editable = ["order", "is_active"]
+    list_editable = ["is_active"]
     search_fields = ["name"]
     ordering = ["order"]
