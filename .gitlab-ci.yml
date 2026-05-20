@@ -41,7 +41,7 @@ deploy_backend:
 
         # 4. Install Python dependencies
         echo "[4/9] Installing Python dependencies..."
-        ./venv/bin/pip install --quiet -r requirements.txt
+        ./venv/bin/python -m pip install --quiet -r requirements.txt
 
         # 5. Django system check (catches config errors, missing settings, etc.)
         echo "[5/9] Running Django system check..."
