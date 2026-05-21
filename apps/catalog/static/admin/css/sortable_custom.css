@@ -56,3 +56,18 @@
     opacity: 1.0 !important;
     transform: scale(1.15) !important;
 }
+
+/* Sticky submit row at the bottom of changelist tables to avoid scrolling all the way down */
+#changelist-form .submit-row {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    z-index: 999;
+    background: var(--body-bg, #fff);
+    border-top: 1px solid var(--hairline-color, #eee);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.08);
+    margin-top: 20px;
+    margin-bottom: 0;
+    border-radius: 0 0 8px 8px;
+    padding: 12px 20px;
+}
