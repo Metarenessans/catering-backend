@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
 from .models import Category, Product, ProductExtraInfo, ProductOption
+from .mixins import MakeFirstAdminMixin
 
 
 class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
@@ -29,7 +30,7 @@ class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
 
 
 @admin.register(Category)
-class CategoryAdmin(SortableAdminMixin, admin.ModelAdmin):
+class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_display = ["order", "name", "slug", "is_active"]
     list_filter = ["is_active"]
     search_fields = ["name", "slug"]
@@ -44,7 +45,8 @@ class CategoryAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(Product)
-class ProductAdmin(SortableAdminMixin, admin.ModelAdmin):
+class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
+    sortable_group_by = "category"
     list_display = [
         "order",
         "name",

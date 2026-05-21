@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin
 from .models import MenuRequest, AdditionalService, EventFormat
+from apps.catalog.mixins import MakeFirstAdminMixin
 
 
 @admin.register(MenuRequest)
@@ -104,7 +105,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
 
 
 @admin.register(AdditionalService)
-class AdditionalServiceAdmin(SortableAdminMixin, admin.ModelAdmin):
+class AdditionalServiceAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_display = ["order", "label", "linked_product", "is_active"]
     list_editable = ["is_active"]
     search_fields = ["label"]
@@ -118,7 +119,7 @@ class AdditionalServiceAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 
 @admin.register(EventFormat)
-class EventFormatAdmin(SortableAdminMixin, admin.ModelAdmin):
+class EventFormatAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_display = ["order", "name", "is_active"]
     list_editable = ["is_active"]
     search_fields = ["name"]
