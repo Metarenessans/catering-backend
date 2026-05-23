@@ -101,6 +101,12 @@ class Product(models.Model):
         help_text="Отображается в разделе 'Выгодно'",
     )
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
+    min_order_quantity = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Минимальное количество заказа",
+        help_text="Минимальное количество товара для заказа. Если пусто, ограничений нет.",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 

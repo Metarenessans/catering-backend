@@ -87,9 +87,9 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
             },
         ),
         (
-            "Цены",
+            "Цены и ограничения",
             {
-                "fields": ["price", "old_price"],
+                "fields": ["price", "old_price", "min_order_quantity"],
             },
         ),
         (

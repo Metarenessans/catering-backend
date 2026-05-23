@@ -58,6 +58,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "is_active",
             "is_featured",
             "order",
+            "min_order_quantity",
             "extra_info",
             "options",
             "created_at",
@@ -103,7 +104,8 @@ class ProductSerializer(serializers.ModelSerializer):
                 "oldPrice": float(instance.old_price) if instance.old_price is not None else None,
             },
             "extraInfo": extra_info_list,
-            "options": options_list
+            "options": options_list,
+            "minOrderQuantity": instance.min_order_quantity
         }
 
 
@@ -127,6 +129,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             "is_active",
             "is_featured",
             "order",
+            "min_order_quantity",
             "extra_info",
         ]
 
