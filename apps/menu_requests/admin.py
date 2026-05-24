@@ -1,9 +1,12 @@
 from django.contrib import admin
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.safestring import mark_safe
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 from adminsortable2.admin import SortableAdminMixin
 from .models import MenuRequest, AdditionalService, EventFormat
 from apps.catalog.mixins import MakeFirstAdminMixin
+from apps.orders.telegram import send_menu_request_telegram_notification
 
 
 @admin.register(MenuRequest)
@@ -28,6 +31,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
         "food_preferences",
         "additional_services",
         "additional_services_display",
+        "send_telegram_button",
     ]
     list_editable = ["status"]
     fieldsets = [
@@ -56,6 +60,12 @@ class MenuRequestAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "Тестирование уведомлений",
+            {
+                "fields": ["send_telegram_button"],
+            },
+        ),
+        (
             "Служебная информация",
             {
                 "fields": ["created_at", "updated_at", "additional_services"],
@@ -63,6 +73,38 @@ class MenuRequestAdmin(admin.ModelAdmin):
             },
         ),
     ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<path:object_id>/send-telegram/',
+                self.admin_site.admin_view(self.send_telegram_view),
+                name='menu-request-send-telegram',
+            ),
+        ]
+        return custom_urls + urls
+
+    def send_telegram_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if obj:
+            try:
+                send_menu_request_telegram_notification(obj)
+                self.message_user(request, "Уведомление в Telegram успешно отправлено!", messages.SUCCESS)
+            except Exception as e:
+                self.message_user(request, f"Ошибка при отправке: {e}", messages.ERROR)
+        return HttpResponseRedirect("../change/")
+
+    @admin.display(description="Отправка уведомления")
+    def send_telegram_button(self, obj):
+        if obj and obj.pk:
+            url = reverse('admin:menu-request-send-telegram', args=[obj.pk])
+            return mark_safe(
+                f'<a class="button" href="{url}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">'
+                f'Отправить уведомление в Telegram'
+                f'</a>'
+            )
+        return "Сначала сохраните объект"
 
     def additional_services_display(self, obj):
         service_ids = obj.additional_services

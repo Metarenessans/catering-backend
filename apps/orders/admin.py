@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from django.urls import path, reverse
+from django.http import HttpResponseRedirect
+from django.contrib import messages
 from .models import Order, OrderItem, TelegramSubscriber
-
-
+from .telegram import send_order_telegram_notification
 
 
 class OrderItemInline(admin.TabularInline):
@@ -43,7 +45,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ["status", "created_at"]
     search_fields = ["id", "comment"]
     ordering = ["-created_at"]
-    readonly_fields = ["total_price", "delivery_cost", "final_price", "cart_link_clickable", "created_at", "updated_at"]
+    readonly_fields = ["total_price", "delivery_cost", "final_price", "cart_link_clickable", "send_telegram_button", "created_at", "updated_at"]
     fields = [
         "status",
         "name",
@@ -56,11 +58,44 @@ class OrderAdmin(admin.ModelAdmin):
         "final_price",
         "comment",
         "cart_link_clickable",
+        "send_telegram_button",
         "created_at",
         "updated_at",
     ]
     list_editable = ["status"]
     inlines = [OrderItemInline]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<path:object_id>/send-telegram/',
+                self.admin_site.admin_view(self.send_telegram_view),
+                name='order-send-telegram',
+            ),
+        ]
+        return custom_urls + urls
+
+    def send_telegram_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if obj:
+            try:
+                send_order_telegram_notification(obj)
+                self.message_user(request, "Уведомление в Telegram успешно отправлено!", messages.SUCCESS)
+            except Exception as e:
+                self.message_user(request, f"Ошибка при отправке: {e}", messages.ERROR)
+        return HttpResponseRedirect("../change/")
+
+    @admin.display(description="Отправка уведомления")
+    def send_telegram_button(self, obj):
+        if obj and obj.pk:
+            url = reverse('admin:order-send-telegram', args=[obj.pk])
+            return mark_safe(
+                f'<a class="button" href="{url}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">'
+                f'Отправить уведомление в Telegram'
+                f'</a>'
+            )
+        return "Сначала сохраните объект"
 
     @admin.display(description="Позиций")
     def items_count(self, obj):
