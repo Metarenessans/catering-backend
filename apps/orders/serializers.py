@@ -50,6 +50,8 @@ class OrderCreateSerializer(serializers.Serializer):
     contact_method = serializers.CharField(max_length=50, default="Позвонить мне", required=False)
     comment = serializers.CharField(allow_blank=True, default="", required=False)
     cart_link = serializers.URLField(allow_blank=True, default="", required=False)
+    guests = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
+    event_date = serializers.DateField(required=True)
 
     def validate_items(self, items):
         if not items:
@@ -63,6 +65,8 @@ class OrderCreateSerializer(serializers.Serializer):
         name = validated_data.get("name", "")
         phone = validated_data.get("phone", "")
         contact_method = validated_data.get("contact_method", "Позвонить мне")
+        guests = validated_data.get("guests", "")
+        event_date = validated_data.get("event_date")
 
         # Рассчитываем суммы на backend — не доверяем данным frontend
         total_price = sum(
@@ -80,6 +84,8 @@ class OrderCreateSerializer(serializers.Serializer):
             name=name,
             phone=phone,
             contact_method=contact_method,
+            guests=guests,
+            event_date=event_date,
             total_price=total_price,
             delivery_cost=delivery_cost,
             final_price=final_price,
@@ -119,6 +125,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "name",
             "phone",
             "contact_method",
+            "guests",
+            "event_date",
             "total_price",
             "delivery_cost",
             "final_price",

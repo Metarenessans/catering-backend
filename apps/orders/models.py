@@ -59,6 +59,17 @@ class Order(models.Model):
         decimal_places=2,
         verbose_name="Итоговая сумма (₽)",
     )
+    guests = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        verbose_name="Количество гостей",
+    )
+    event_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Дата мероприятия",
+    )
     comment = models.TextField(blank=True, default="", verbose_name="Комментарий")
     cart_link = models.URLField(
         max_length=3000,
