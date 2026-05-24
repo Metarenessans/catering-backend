@@ -58,10 +58,20 @@ def get_telegram_username_by_phone(phone):
         
     session_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'anon.session')
     
+    # Configure the proxy for Telethon to bypass server IP blocks and timeouts
+    proxy = {
+        'proxy_type': 'http',
+        'addr': '45.130.129.91',
+        'port': 8000,
+        'username': 'QcFfZK',
+        'password': 'ZqwwfB'
+    }
+    
     async def fetch():
-        client = TelegramClient(session_path, int(api_id), api_hash)
-        await client.connect()
+        client = TelegramClient(session_path, int(api_id), api_hash, proxy=proxy)
         try:
+            # Connect with a timeout to avoid blocking indefinitely
+            await asyncio.wait_for(client.connect(), timeout=10.0)
             entity = await client.get_entity(phone)
             if entity and getattr(entity, 'username', None):
                 return entity.username
@@ -82,7 +92,11 @@ def get_telegram_username_by_phone(phone):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             return executor.submit(lambda: asyncio.run(fetch())).result()
     else:
-        return asyncio.run(fetch())
+        try:
+            return asyncio.run(fetch())
+        except Exception as e:
+            logger.error(f"Failed running fetch in asyncio: {e}")
+            return None
 
 def get_social_links_str(phone):
     clean_phone = clean_phone_number(phone)
