@@ -137,14 +137,22 @@ def send_order_telegram_notification(order):
     
     social_links_str = get_social_links_str(phone)
     
+    # Format phone and guests with <code> tag for single-tap copy
+    phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
+    guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
+    
+    # Format links to be on the next line
+    cart_line = f"Корзина:\n{cart_link}" if cart_link != "—" else "Корзина: —"
+    admin_line = f"Заявка:\n{admin_link}"
+    
     message = (
         f"Имя: {name}\n"
-        f"Телефон: {phone}\n"
+        f"Телефон: {phone_formatted}\n"
         f"Способ связи: {contact_method}\n"
-        f"Количество гостей: {guests}\n"
+        f"Количество гостей: {guests_formatted}\n"
         f"К дате: {event_date_str}\n"
-        f"Корзина: {cart_link}\n"
-        f"Заявка: {admin_link}\n"
+        f"{cart_line}\n"
+        f"{admin_line}\n"
         f"Итого: {total_price}\n\n"
         f"Дополнительно:\n"
         f"{social_links_str}"
@@ -165,14 +173,22 @@ def send_menu_request_telegram_notification(menu_request):
     
     social_links_str = get_social_links_str(phone)
     
+    # Format phone and guests with <code> tag for single-tap copy
+    phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
+    guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
+    
+    # Format links to be on the next line (cart is always "—" here)
+    cart_line = "Корзина: —"
+    admin_line = f"Заявка:\n{admin_link}"
+    
     message = (
         f"Имя: {name}\n"
-        f"Телефон: {phone}\n"
+        f"Телефон: {phone_formatted}\n"
         f"Способ связи: {contact_method}\n"
-        f"Количество гостей: {guests}\n"
+        f"Количество гостей: {guests_formatted}\n"
         f"К дате: {event_date_str}\n"
-        f"Корзина: —\n"
-        f"Заявка: {admin_link}\n"
+        f"{cart_line}\n"
+        f"{admin_line}\n"
         f"Итого: —\n\n"
         f"Дополнительно:\n"
         f"{social_links_str}"
