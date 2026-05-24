@@ -4,6 +4,7 @@ import json
 import datetime
 import urllib.request
 import urllib.parse
+import requests
 import logging
 
 logger = logging.getLogger(__name__)
@@ -153,15 +154,9 @@ def _send_to_telegram(text):
             "parse_mode": "HTML",
             "disable_web_page_preview": True
         }
+        proxy = "http://QcFfZK:ZqwwfB@45.130.129.91:8000"
+        proxies = {"http": proxy, "https": proxy}
         try:
-            data = json.dumps(payload).encode("utf-8")
-            req = urllib.request.Request(
-                url, 
-                data=data, 
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
-            with urllib.request.urlopen(req, timeout=5) as response:
-                response.read()
+            requests.post(url, json=payload, proxies=proxies, timeout=5)
         except Exception as e:
             logger.error(f"Failed to send Telegram notification to {chat_id}: {e}")
