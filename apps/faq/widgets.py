@@ -20,12 +20,16 @@ class StringListWidget(forms.Widget):
         
         # We will build the HTML and JavaScript
         html = f"""
-        <div id="{name}-container" class="string-list-container" style="max-width: 800px;">
-           <!-- Dynamic inputs will be inserted here -->
+        <div class="string-list-widget-wrapper" style="display: block; width: 100%; max-width: 600px; box-sizing: border-box;">
+            <div id="{name}-container" class="string-list-container" style="display: block; width: 100%; box-sizing: border-box;">
+               <!-- Dynamic inputs will be inserted here -->
+            </div>
+            <div style="display: block; margin-top: 8px;">
+                <button type="button" id="add-{name}-btn" class="button" style="background: #417690; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                    + Добавить строку
+                </button>
+            </div>
         </div>
-        <button type="button" id="add-{name}-btn" class="button" style="margin-top: 8px; background: #417690; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-            + Добавить строку
-        </button>
         
         <script>
         (function() {{
@@ -39,13 +43,16 @@ class StringListWidget(forms.Widget):
                 div.style.alignItems = 'center';
                 div.style.marginBottom = '8px';
                 div.style.gap = '8px';
+                div.style.width = '100%';
+                div.style.boxSizing = 'border-box';
                 
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.name = '{name}';
                 input.value = value;
                 input.className = 'vTextField';
-                input.style.width = '80%';
+                input.style.flex = '1';
+                input.style.minWidth = '0';
                 input.style.margin = '0';
                 
                 const deleteBtn = document.createElement('button');
@@ -55,9 +62,14 @@ class StringListWidget(forms.Widget):
                 deleteBtn.style.background = '#ba2121';
                 deleteBtn.style.color = 'white';
                 deleteBtn.style.border = 'none';
-                deleteBtn.style.padding = '5px 10px';
+                deleteBtn.style.padding = '6px 12px';
                 deleteBtn.style.borderRadius = '4px';
                 deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.height = '32px';
+                deleteBtn.style.display = 'inline-flex';
+                deleteBtn.style.alignItems = 'center';
+                deleteBtn.style.justifyContent = 'center';
+                deleteBtn.style.flexShrink = '0';
                 
                 deleteBtn.addEventListener('click', function() {{
                     div.remove();
