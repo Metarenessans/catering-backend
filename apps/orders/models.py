@@ -130,3 +130,51 @@ class OrderItem(models.Model):
     def save(self, *args, **kwargs):
         self.subtotal = self.price * self.quantity
         super().save(*args, **kwargs)
+
+
+class TelegramSubscriber(models.Model):
+    username = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+        verbose_name="Username в Telegram",
+        help_text="Без символа @. Например: ivan_manager",
+    )
+    phone = models.CharField(
+        max_length=30,
+        blank=True,
+        default="",
+        verbose_name="Номер телефона",
+        help_text="Например: +79991234567",
+    )
+    chat_id = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        verbose_name="Telegram Chat ID",
+        help_text="Заполняется автоматически при подключении пользователя в боте",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активен",
+        help_text="Если снято, пользователь перестанет получать уведомления",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+
+    class Meta:
+        verbose_name = "Подписчик Telegram"
+        verbose_name_plural = "Подписчики Telegram"
+
+    def __str__(self):
+        identifiers = []
+        if self.username:
+            identifiers.append(f"@{self.username}")
+        if self.phone:
+            identifiers.append(self.phone)
+        ident_str = " / ".join(identifiers) or "Без идентификатора"
+        
+        status = "активен" if self.is_active else "заблокирован"
+        connected = "подключен" if self.chat_id else "ожидает подключения"
+        return f"{ident_str} ({status}, {connected})"
+

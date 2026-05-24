@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from .models import Order, OrderItem
+from .models import Order, OrderItem, TelegramSubscriber
+
+
 
 
 class OrderItemInline(admin.TabularInline):
@@ -72,4 +74,15 @@ class OrderAdmin(admin.ModelAdmin):
                 f'{obj.cart_link}</a>'
             )
         return "Нет ссылки"
+
+
+@admin.register(TelegramSubscriber)
+class TelegramSubscriberAdmin(admin.ModelAdmin):
+    list_display = ["username", "phone", "chat_id", "is_active", "created_at"]
+    list_filter = ["is_active", "created_at"]
+    search_fields = ["username", "phone", "chat_id"]
+    list_editable = ["is_active"]
+    readonly_fields = ["chat_id", "created_at", "updated_at"]
+    fields = ["username", "phone", "chat_id", "is_active", "created_at", "updated_at"]
+
 
