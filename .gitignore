@@ -152,3 +152,7 @@ cython_debug/
 # Django collected static files
 staticfiles/
 
+# Telethon session files (Sensitive data)
+*.session
+
+

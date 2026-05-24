@@ -6,6 +6,8 @@ import urllib.request
 import urllib.parse
 import requests
 import logging
+import asyncio
+from telethon import TelegramClient
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,66 @@ def format_russian_date_and_days(event_date):
     else:
         return f"{formatted_date} (прошло {abs(delta)} дней)"
 
+def get_telegram_username_by_phone(phone):
+    if not phone:
+        return None
+    api_id = os.getenv('TG_API_ID')
+    api_hash = os.getenv('TG_API_HASH')
+    if not api_id or not api_hash:
+        logger.warning("TG_API_ID or TG_API_HASH not set, cannot resolve Telegram username.")
+        return None
+        
+    session_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'anon.session')
+    
+    async def fetch():
+        client = TelegramClient(session_path, int(api_id), api_hash)
+        await client.connect()
+        try:
+            entity = await client.get_entity(phone)
+            if entity and getattr(entity, 'username', None):
+                return entity.username
+            return None
+        except Exception as e:
+            logger.error(f"Error fetching Telegram entity for phone {phone}: {e}")
+            return None
+        finally:
+            await client.disconnect()
+            
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = None
+        
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return executor.submit(lambda: asyncio.run(fetch())).result()
+    else:
+        return asyncio.run(fetch())
+
+def get_social_links_str(phone):
+    clean_phone = clean_phone_number(phone)
+    if not clean_phone:
+        return "—"
+        
+    social_links = []
+    
+    # 1. Telegram
+    try:
+        username = get_telegram_username_by_phone("+" + clean_phone)
+        if username:
+            social_links.append(f'<a href="https://t.me/{username}">Telegram</a>')
+        else:
+            social_links.append("Telegram (не найден)")
+    except Exception as e:
+        logger.error(f"Failed to resolve Telegram username: {e}")
+        social_links.append("Telegram (ошибка поиска)")
+        
+    # 2. WhatsApp
+    social_links.append(f'<a href="https://wa.me/{clean_phone}">WhatsApp</a>')
+    
+    return ", ".join(social_links)
+
 def send_order_telegram_notification(order):
     """Sends notification about a new order."""
     name = order.name or "—"
@@ -59,14 +121,7 @@ def send_order_telegram_notification(order):
     
     total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
     
-    clean_phone = clean_phone_number(phone)
-    social_links = []
-    if clean_phone:
-        social_links.append(f'<a href="https://t.me/+{clean_phone}">Telegram</a>')
-        social_links.append(f'<a href="https://wa.me/{clean_phone}">WhatsApp</a>')
-        social_links.append(f'<a href="https://max.ru/u/{clean_phone}">Max</a>')
-    
-    social_links_str = ", ".join(social_links) if social_links else "—"
+    social_links_str = get_social_links_str(phone)
     
     message = (
         f"Имя: {name}\n"
@@ -94,14 +149,7 @@ def send_menu_request_telegram_notification(menu_request):
     admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
     admin_link = f"{admin_base_url}/admin/menu_requests/menurequest/{menu_request.id}/change/"
     
-    clean_phone = clean_phone_number(phone)
-    social_links = []
-    if clean_phone:
-        social_links.append(f'<a href="https://t.me/+{clean_phone}">Telegram</a>')
-        social_links.append(f'<a href="https://wa.me/{clean_phone}">WhatsApp</a>')
-        social_links.append(f'<a href="https://max.ru/u/{clean_phone}">Max</a>')
-    
-    social_links_str = ", ".join(social_links) if social_links else "—"
+    social_links_str = get_social_links_str(phone)
     
     message = (
         f"Имя: {name}\n"
@@ -117,6 +165,7 @@ def send_menu_request_telegram_notification(menu_request):
     )
     
     _send_to_telegram(message)
+
 
 def _send_to_telegram(text):
     token = os.getenv("TELEGRAM_BOT_TOKEN")
