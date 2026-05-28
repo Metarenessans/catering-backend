@@ -51,7 +51,7 @@ class OrderCreateSerializer(serializers.Serializer):
     comment = serializers.CharField(allow_blank=True, default="", required=False)
     cart_link = serializers.URLField(allow_blank=True, default="", required=False)
     guests = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
-    event_date = serializers.DateField(required=True)
+    event_date = serializers.DateField(required=False, allow_null=True)
 
     def validate_items(self, items):
         if not items:
