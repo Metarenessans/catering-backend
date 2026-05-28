@@ -40,12 +40,23 @@ def format_russian_date_and_days(event_date):
     today = datetime.date.today()
     delta = (event_date - today).days
     
+    def get_plural_days(n):
+        n = abs(n)
+        if n % 100 in [11, 12, 13, 14]:
+            return "дней"
+        if n % 10 == 1:
+            return "день"
+        if n % 10 in [2, 3, 4]:
+            return "дня"
+        return "дней"
+    
     if delta > 0:
-        return f"{formatted_date} (через {delta} дней)"
+        return f"{formatted_date} (через {delta} {get_plural_days(delta)})"
     elif delta == 0:
         return f"{formatted_date} (сегодня)"
     else:
-        return f"{formatted_date} (прошло {abs(delta)} дней)"
+        abs_delta = abs(delta)
+        return f"{formatted_date} (прошло {abs_delta} {get_plural_days(abs_delta)})"
 
 def get_telegram_username_by_phone(phone):
     if not phone:
