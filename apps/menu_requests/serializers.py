@@ -61,7 +61,7 @@ class MenuRequestCreateSerializer(serializers.Serializer):
     """
     format = serializers.CharField(max_length=100)
     guests = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    date = serializers.DateField()
+    date = serializers.DateField(required=False, allow_null=True)
     additional = serializers.ListField(
         child=serializers.CharField(),
         default=list,
@@ -73,6 +73,8 @@ class MenuRequestCreateSerializer(serializers.Serializer):
     consent = serializers.BooleanField()
 
     def validate_date(self, value):
+        if not value:
+            return value
         if value < datetime.date.today():
             raise serializers.ValidationError("Дата мероприятия не может быть в прошлом.")
         return value
