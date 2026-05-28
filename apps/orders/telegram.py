@@ -69,14 +69,16 @@ def get_telegram_username_by_phone(phone):
         
     session_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'anon.session')
     
-    # Configure the proxy for Telethon to bypass server IP blocks and timeouts
-    proxy = {
-        'proxy_type': 'http',
-        'addr': '45.130.129.91',
-        'port': 8000,
-        'username': 'QcFfZK',
-        'password': 'ZqwwfB'
-    }
+    # Configure the proxy for Telethon to bypass server IP blocks and timeouts.
+    # Telethon requires SOCKS5 proxy (not HTTP) for MTProto protocol.
+    proxy = (
+        "socks5",
+        os.getenv("PROXY_HOST", "45.130.129.91"),
+        int(os.getenv("PROXY_PORT", "8000")),
+        True,
+        os.getenv("PROXY_USER", "QcFfZK"),
+        os.getenv("PROXY_PASS", "ZqwwfB"),
+    )
     
     async def fetch():
         client = TelegramClient(session_path, int(api_id), api_hash, proxy=proxy)
