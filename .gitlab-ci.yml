@@ -11,7 +11,7 @@ deploy_backend:
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
+  script:
     - echo "SECRET_KEY=${PROD_SECRET_KEY}" > .env
     - echo "DEBUG=False" >> .env
     - echo "ALLOWED_HOSTS=localhost,127.0.0.1,157.22.192.108,chefmil-furshet.ru,www.chefmil-furshet.ru" >> .env
