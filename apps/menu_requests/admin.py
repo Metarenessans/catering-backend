@@ -34,6 +34,12 @@ class MenuRequestAdmin(admin.ModelAdmin):
         "send_telegram_button",
     ]
     list_editable = ["status"]
+
+    class Media:
+        css = {
+            "all": ("admin/css/sortable_custom.css",)
+        }
+
     fieldsets = [
         (
             "Данные мероприятия",
