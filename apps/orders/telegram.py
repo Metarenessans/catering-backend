@@ -159,6 +159,7 @@ def send_order_telegram_notification(order):
     admin_line = f"Заявка:\n{admin_link}"
     
     message = (
+        f"<b>Заявка: Заказ</b>\n\n"
         f"Имя: {name}\n"
         f"Телефон: {phone_formatted}\n"
         f"Способ связи: {contact_method}\n"
@@ -195,6 +196,7 @@ def send_menu_request_telegram_notification(menu_request):
     admin_line = f"Заявка:\n{admin_link}"
     
     message = (
+        f"<b>Заявка: Подбор меню</b>\n\n"
         f"Имя: {name}\n"
         f"Телефон: {phone_formatted}\n"
         f"Способ связи: {contact_method}\n"
