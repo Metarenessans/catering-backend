@@ -181,6 +181,30 @@ def send_menu_request_telegram_notification(menu_request):
     contact_method = menu_request.contact_method or "—"
     guests = menu_request.guests or "—"
     event_date_str = format_russian_date_and_days(menu_request.date)
+    event_format = menu_request.format or "—"
+    
+    # Виды блюд
+    food_prefs = menu_request.food_preferences or []
+    food_prefs_str = ", ".join(food_prefs) if food_prefs else "—"
+    
+    # Дополнительные услуги (извлекаем по ID)
+    services_str = "—"
+    service_ids = menu_request.additional_services or []
+    if service_ids:
+        try:
+            from apps.menu_requests.models import AdditionalService
+            int_ids = []
+            for sid in service_ids:
+                try:
+                    int_ids.append(int(sid))
+                except ValueError:
+                    pass
+            if int_ids:
+                services = AdditionalService.objects.filter(id__in=int_ids)
+                if services.exists():
+                    services_str = ", ".join([s.label for s in services])
+        except Exception as e:
+            logger.error(f"Error fetching additional services for Telegram notification: {e}")
     
     admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
     admin_link = f"{admin_base_url}/admin/menu_requests/menurequest/{menu_request.id}/change/"
@@ -191,20 +215,19 @@ def send_menu_request_telegram_notification(menu_request):
     phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
     guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
     
-    # Format links to be on the next line (cart is always "—" here)
-    cart_line = "Корзина: —"
-    admin_line = f"Заявка:\n{admin_link}"
+    admin_line = f"Заявка в админке:\n{admin_link}"
     
     message = (
         f"<b>Заявка: Подбор меню</b>\n\n"
         f"Имя: {name}\n"
         f"Телефон: {phone_formatted}\n"
         f"Способ связи: {contact_method}\n"
+        f"Формат мероприятия: {event_format}\n"
         f"Количество гостей: {guests_formatted}\n"
         f"К дате: {event_date_str}\n"
-        f"{cart_line}\n"
-        f"{admin_line}\n"
-        f"Итого: —\n\n"
+        f"Виды блюд: {food_prefs_str}\n"
+        f"Доп. услуги: {services_str}\n\n"
+        f"{admin_line}\n\n"
         f"Дополнительно:\n"
         f"{social_links_str}"
     )
