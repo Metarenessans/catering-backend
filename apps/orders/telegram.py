@@ -151,7 +151,7 @@ def _send_order_notification_bg(order_id):
         event_date_str = format_russian_date_and_days(order.event_date)
         cart_link = order.cart_link or "—"
         
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
         admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
         
         total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
@@ -207,7 +207,7 @@ def _send_menu_request_notification_bg(menu_request_id):
         else:
             food_prefs_str = " —"
         
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
         
         # Дополнительные услуги (извлекаем по ID)
         services_str = "—"
