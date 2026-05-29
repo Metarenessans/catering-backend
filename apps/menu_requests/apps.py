@@ -7,5 +7,5 @@ class MenuRequestsConfig(AppConfig):
     verbose_name = "Заявки на подбор меню"
 
     def ready(self):
-        import apps.menu_requests.signals
+        from . import signals
 

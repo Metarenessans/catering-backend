@@ -2,7 +2,7 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import MenuRequest
-from apps.orders.telegram import send_menu_request_telegram_notification
+from ..orders.telegram import send_menu_request_telegram_notification
 
 logger = logging.getLogger(__name__)
 

@@ -5,8 +5,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from adminsortable2.admin import SortableAdminMixin
 from .models import MenuRequest, AdditionalService, EventFormat
-from apps.catalog.mixins import MakeFirstAdminMixin
-from apps.orders.telegram import send_menu_request_telegram_notification
+from ..catalog.mixins import MakeFirstAdminMixin
+from ..orders.telegram import send_menu_request_telegram_notification
 
 
 @admin.register(MenuRequest)

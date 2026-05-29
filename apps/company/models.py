@@ -1,5 +1,5 @@
 from django.db import models
-from apps.catalog.models import Category
+from ..catalog.models import Category
 
 
 class CompanyInfo(models.Model):

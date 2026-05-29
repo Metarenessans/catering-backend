@@ -1,6 +1,6 @@
 import re
 from django.core.management.base import BaseCommand
-from apps.catalog.models import Product, Category
+from ...models import Product, Category
 
 class Command(BaseCommand):
     help = "Parse product names in specific categories and update their min_order_quantity based on 'от X шт' pattern"

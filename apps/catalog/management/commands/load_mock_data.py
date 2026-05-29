@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
-from apps.catalog.models import Category, Product, ProductExtraInfo
-from apps.faq.models import FaqItem
-from apps.company.models import CompanyInfo
-from apps.menu_requests.models import EventFormat, AdditionalService
+from ...models import Category, Product, ProductExtraInfo
+from ....faq.models import FaqItem
+from ....company.models import CompanyInfo
+from ....menu_requests.models import EventFormat, AdditionalService
 
 class Command(BaseCommand):
     help = 'Load mock data from frontend/src/mock-data.ts'

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import MenuRequest, AdditionalService, EventFormat
-from apps.catalog.serializers import ProductSerializer
+from ..catalog.serializers import ProductSerializer
 
 import datetime
 

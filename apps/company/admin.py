@@ -1,7 +1,7 @@
 from django.contrib import admin
 from adminsortable2.admin import SortableAdminMixin
 from .models import CompanyInfo, FooterNavigation
-from apps.catalog.mixins import MakeFirstAdminMixin
+from ..catalog.mixins import MakeFirstAdminMixin
 
 
 @admin.register(CompanyInfo)

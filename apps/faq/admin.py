@@ -3,7 +3,7 @@ from django.contrib import admin
 from adminsortable2.admin import SortableAdminMixin
 from .models import FaqItem
 from .widgets import StringListWidget
-from apps.catalog.mixins import MakeFirstAdminMixin
+from ..catalog.mixins import MakeFirstAdminMixin
 
 
 class FaqItemForm(forms.ModelForm):

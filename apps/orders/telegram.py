@@ -1,3 +1,4 @@
+# Trigger file update
 import os
 import re
 import json
@@ -141,7 +142,7 @@ def _send_order_notification_bg(order_id):
     try:
         # Даем транзакции Django завершиться
         time.sleep(0.5)
-        from apps.orders.models import Order
+        from .models import Order
         order = Order.objects.get(id=order_id)
         
         name = order.name or "—"
@@ -189,7 +190,7 @@ def _send_menu_request_notification_bg(menu_request_id):
     try:
         # Даем транзакции Django завершиться
         time.sleep(0.5)
-        from apps.menu_requests.models import MenuRequest
+        from ..menu_requests.models import MenuRequest
         menu_request = MenuRequest.objects.get(id=menu_request_id)
         
         name = menu_request.name or "—"
@@ -214,7 +215,7 @@ def _send_menu_request_notification_bg(menu_request_id):
         service_ids = menu_request.additional_services or []
         if service_ids:
             try:
-                from apps.menu_requests.models import AdditionalService
+                from ..menu_requests.models import AdditionalService
                 int_ids = []
                 for sid in service_ids:
                     try:
