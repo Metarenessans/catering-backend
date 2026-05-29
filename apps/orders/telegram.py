@@ -201,7 +201,13 @@ def _send_menu_request_notification_bg(menu_request_id):
         
         # Виды блюд
         food_prefs = menu_request.food_preferences or []
-        food_prefs_str = ", ".join(food_prefs) if food_prefs else "—"
+        if food_prefs:
+            food_prefs_lines = [f"— {pref}" for pref in food_prefs]
+            food_prefs_str = "\n" + "\n".join(food_prefs_lines)
+        else:
+            food_prefs_str = " —"
+        
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
         
         # Дополнительные услуги (извлекаем по ID)
         services_str = "—"
@@ -216,13 +222,19 @@ def _send_menu_request_notification_bg(menu_request_id):
                     except ValueError:
                         pass
                 if int_ids:
-                    services = AdditionalService.objects.filter(id__in=int_ids)
+                    services = AdditionalService.objects.filter(id__in=int_ids).select_related('linked_product')
                     if services.exists():
-                        services_str = ", ".join([s.label for s in services])
+                        service_lines = []
+                        for s in services:
+                            if s.linked_product:
+                                prod_url = f"{admin_base_url}/admin/catalog/product/{s.linked_product.id}/change/"
+                                service_lines.append(f"— {s.label} (<a href=\"{prod_url}\">привязанный товар</a>)")
+                            else:
+                                service_lines.append(f"— {s.label}")
+                        services_str = "\n" + "\n".join(service_lines)
             except Exception as e:
                 logger.error(f"Error fetching additional services for Telegram notification: {e}")
         
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
         admin_link = f"{admin_base_url}/admin/menu_requests/menurequest/{menu_request.id}/change/"
         
         social_links_str = get_social_links_str(phone)
