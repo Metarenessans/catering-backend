@@ -7,6 +7,8 @@ import urllib.parse
 import requests
 import logging
 import asyncio
+import threading
+import time
 from telethon import TelegramClient
 
 logger = logging.getLogger(__name__)
@@ -84,7 +86,7 @@ def get_telegram_username_by_phone(phone):
         client = TelegramClient(session_path, int(api_id), api_hash, proxy=proxy)
         try:
             # Connect with a timeout to avoid blocking indefinitely
-            await asyncio.wait_for(client.connect(), timeout=10.0)
+            await asyncio.wait_for(client.connect(), timeout=3.0)
             entity = await client.get_entity(phone)
             if entity and getattr(entity, 'username', None):
                 return entity.username
@@ -134,105 +136,137 @@ def get_social_links_str(phone):
     
     return ", ".join(social_links)
 
+def _send_order_notification_bg(order_id):
+    """Фоновая сборка и отправка уведомления о заказе."""
+    try:
+        # Даем транзакции Django завершиться
+        time.sleep(0.5)
+        from apps.orders.models import Order
+        order = Order.objects.get(id=order_id)
+        
+        name = order.name or "—"
+        phone = order.phone or "—"
+        contact_method = order.contact_method or "—"
+        guests = order.guests or "—"
+        event_date_str = format_russian_date_and_days(order.event_date)
+        cart_link = order.cart_link or "—"
+        
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
+        admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
+        
+        total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
+        
+        social_links_str = get_social_links_str(phone)
+        
+        # Format phone and guests with <code> tag for single-tap copy
+        phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
+        guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
+        
+        # Format links to be on the next line
+        cart_line = f"Корзина:\n{cart_link}" if cart_link != "—" else "Корзина: —"
+        admin_line = f"Заявка:\n{admin_link}"
+        
+        message = (
+            f"<b>- Заказ -</b>\n\n"
+            f"Имя: {name}\n"
+            f"Телефон: {phone_formatted}\n"
+            f"Способ связи: {contact_method}\n"
+            f"Количество гостей: {guests_formatted}\n"
+            f"К дате: {event_date_str}\n"
+            f"{cart_line}\n"
+            f"{admin_line}\n"
+            f"Итого: {total_price}\n\n"
+            f"Дополнительно:\n"
+            f"{social_links_str}"
+        )
+        
+        _send_to_telegram(message)
+    except Exception as e:
+        logger.error(f"Error in background order notification for ID {order_id}: {e}")
+
+def _send_menu_request_notification_bg(menu_request_id):
+    """Фоновая сборка и отправка уведомления о подборе меню."""
+    try:
+        # Даем транзакции Django завершиться
+        time.sleep(0.5)
+        from apps.menu_requests.models import MenuRequest
+        menu_request = MenuRequest.objects.get(id=menu_request_id)
+        
+        name = menu_request.name or "—"
+        phone = menu_request.phone or "—"
+        contact_method = menu_request.contact_method or "—"
+        guests = menu_request.guests or "—"
+        event_date_str = format_russian_date_and_days(menu_request.date)
+        event_format = menu_request.format or "—"
+        
+        # Виды блюд
+        food_prefs = menu_request.food_preferences or []
+        food_prefs_str = ", ".join(food_prefs) if food_prefs else "—"
+        
+        # Дополнительные услуги (извлекаем по ID)
+        services_str = "—"
+        service_ids = menu_request.additional_services or []
+        if service_ids:
+            try:
+                from apps.menu_requests.models import AdditionalService
+                int_ids = []
+                for sid in service_ids:
+                    try:
+                        int_ids.append(int(sid))
+                    except ValueError:
+                        pass
+                if int_ids:
+                    services = AdditionalService.objects.filter(id__in=int_ids)
+                    if services.exists():
+                        services_str = ", ".join([s.label for s in services])
+            except Exception as e:
+                logger.error(f"Error fetching additional services for Telegram notification: {e}")
+        
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
+        admin_link = f"{admin_base_url}/admin/menu_requests/menurequest/{menu_request.id}/change/"
+        
+        social_links_str = get_social_links_str(phone)
+        
+        # Format phone and guests with <code> tag for single-tap copy
+        phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
+        guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
+        
+        admin_line = f"Заявка в админке:\n{admin_link}"
+        
+        message = (
+            f"<b>- Подбор меню -</b>\n\n"
+            f"Имя: {name}\n"
+            f"Телефон: {phone_formatted}\n"
+            f"Способ связи: {contact_method}\n"
+            f"Формат мероприятия: {event_format}\n"
+            f"Количество гостей: {guests_formatted}\n"
+            f"К дате: {event_date_str}\n"
+            f"Виды блюд: {food_prefs_str}\n"
+            f"Доп. услуги: {services_str}\n\n"
+            f"{admin_line}\n\n"
+            f"Дополнительно:\n"
+            f"{social_links_str}"
+        )
+        
+        _send_to_telegram(message)
+    except Exception as e:
+        logger.error(f"Error in background menu request notification for ID {menu_request_id}: {e}")
+
 def send_order_telegram_notification(order):
-    """Sends notification about a new order."""
-    name = order.name or "—"
-    phone = order.phone or "—"
-    contact_method = order.contact_method or "—"
-    guests = order.guests or "—"
-    event_date_str = format_russian_date_and_days(order.event_date)
-    cart_link = order.cart_link or "—"
-    
-    admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
-    admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
-    
-    total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
-    
-    social_links_str = get_social_links_str(phone)
-    
-    # Format phone and guests with <code> tag for single-tap copy
-    phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
-    guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
-    
-    # Format links to be on the next line
-    cart_line = f"Корзина:\n{cart_link}" if cart_link != "—" else "Корзина: —"
-    admin_line = f"Заявка:\n{admin_link}"
-    
-    message = (
-        f"<b>- Заказ -</b>\n\n"
-        f"Имя: {name}\n"
-        f"Телефон: {phone_formatted}\n"
-        f"Способ связи: {contact_method}\n"
-        f"Количество гостей: {guests_formatted}\n"
-        f"К дате: {event_date_str}\n"
-        f"{cart_line}\n"
-        f"{admin_line}\n"
-        f"Итого: {total_price}\n\n"
-        f"Дополнительно:\n"
-        f"{social_links_str}"
-    )
-    
-    _send_to_telegram(message)
+    """Sends notification about a new order asynchronously."""
+    threading.Thread(
+        target=_send_order_notification_bg,
+        args=(order.id,),
+        daemon=True
+    ).start()
 
 def send_menu_request_telegram_notification(menu_request):
-    """Sends notification about a new menu request."""
-    name = menu_request.name or "—"
-    phone = menu_request.phone or "—"
-    contact_method = menu_request.contact_method or "—"
-    guests = menu_request.guests or "—"
-    event_date_str = format_russian_date_and_days(menu_request.date)
-    event_format = menu_request.format or "—"
-    
-    # Виды блюд
-    food_prefs = menu_request.food_preferences or []
-    food_prefs_str = ", ".join(food_prefs) if food_prefs else "—"
-    
-    # Дополнительные услуги (извлекаем по ID)
-    services_str = "—"
-    service_ids = menu_request.additional_services or []
-    if service_ids:
-        try:
-            from apps.menu_requests.models import AdditionalService
-            int_ids = []
-            for sid in service_ids:
-                try:
-                    int_ids.append(int(sid))
-                except ValueError:
-                    pass
-            if int_ids:
-                services = AdditionalService.objects.filter(id__in=int_ids)
-                if services.exists():
-                    services_str = ", ".join([s.label for s in services])
-        except Exception as e:
-            logger.error(f"Error fetching additional services for Telegram notification: {e}")
-    
-    admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
-    admin_link = f"{admin_base_url}/admin/menu_requests/menurequest/{menu_request.id}/change/"
-    
-    social_links_str = get_social_links_str(phone)
-    
-    # Format phone and guests with <code> tag for single-tap copy
-    phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
-    guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
-    
-    admin_line = f"Заявка в админке:\n{admin_link}"
-    
-    message = (
-        f"<b>- Подбор меню -</b>\n\n"
-        f"Имя: {name}\n"
-        f"Телефон: {phone_formatted}\n"
-        f"Способ связи: {contact_method}\n"
-        f"Формат мероприятия: {event_format}\n"
-        f"Количество гостей: {guests_formatted}\n"
-        f"К дате: {event_date_str}\n"
-        f"Виды блюд: {food_prefs_str}\n"
-        f"Доп. услуги: {services_str}\n\n"
-        f"{admin_line}\n\n"
-        f"Дополнительно:\n"
-        f"{social_links_str}"
-    )
-    
-    _send_to_telegram(message)
+    """Sends notification about a new menu request asynchronously."""
+    threading.Thread(
+        target=_send_menu_request_notification_bg,
+        args=(menu_request.id,),
+        daemon=True
+    ).start()
 
 
 def _send_to_telegram(text):
