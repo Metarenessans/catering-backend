@@ -151,7 +151,7 @@ def _send_order_notification_bg(order_id):
         event_date_str = format_russian_date_and_days(order.event_date)
         cart_link = order.cart_link or "—"
         
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
         admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
         
         total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
@@ -164,7 +164,7 @@ def _send_order_notification_bg(order_id):
         
         # Format links to be on the next line
         cart_line = f"Корзина:\n{cart_link}" if cart_link != "—" else "Корзина: —"
-        admin_line = f"Заявка:\n{admin_link}"
+        admin_line = f"Заявка в админке: <a href=\"{admin_link}\">открыть</a>"
         
         message = (
             f"<b>- Заказ -</b>\n\n"
@@ -207,7 +207,7 @@ def _send_menu_request_notification_bg(menu_request_id):
         else:
             food_prefs_str = " —"
         
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://localhost:8000").rstrip("/")
+        admin_base_url = os.getenv("ADMIN_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
         
         # Дополнительные услуги (извлекаем по ID)
         services_str = "—"
@@ -243,7 +243,7 @@ def _send_menu_request_notification_bg(menu_request_id):
         phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
         guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
         
-        admin_line = f"Заявка в админке:\n{admin_link}"
+        admin_line = f"Заявка в админке: <a href=\"{admin_link}\">открыть</a>"
         
         message = (
             f"<b>- Подбор меню -</b>\n\n"
