@@ -24,6 +24,12 @@ deploy_backend:
     - echo "TELEGRAM_BOT_TOKEN=${PROD_TELEGRAM_BOT_TOKEN}" >> .env
     - echo "TG_API_ID=${PROD_TG_API_ID}" >> .env
     - echo "TG_API_HASH=${PROD_TG_API_HASH}" >> .env
+    - echo "EMAIL_HOST=${EMAIL_HOST}" >> .env
+    - echo "EMAIL_PORT=${EMAIL_PORT}" >> .env
+    - echo "EMAIL_USE_SSL=${EMAIL_USE_SSL}" >> .env
+    - echo "EMAIL_HOST_USER=${EMAIL_HOST_USER}" >> .env
+    - echo "EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}" >> .env
+    - echo "DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}" >> .env
     - scp -o StrictHostKeyChecking=no .env $SERVER_USER@$SERVER_IP:/tmp/.env_backend
     - |
       ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'ENDSSH'
