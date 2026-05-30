@@ -36,6 +36,20 @@ class StringListWidget(forms.Widget):
             const container = document.getElementById('{name}-container');
             const addButton = document.getElementById('add-{name}-btn');
             
+            function updateDeleteButtons() {{
+                const items = container.querySelectorAll('.string-list-item');
+                const deleteButtons = container.querySelectorAll('.string-list-delete-btn');
+                if (items.length <= 1) {{
+                    deleteButtons.forEach(btn => {{
+                        btn.style.display = 'none';
+                    }});
+                }} else {{
+                    deleteButtons.forEach(btn => {{
+                        btn.style.display = 'inline-flex';
+                    }});
+                }}
+            }}
+            
             function createRow(value = "") {{
                 const div = document.createElement('div');
                 div.className = 'string-list-item';
@@ -57,7 +71,7 @@ class StringListWidget(forms.Widget):
                 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.type = 'button';
-                deleteBtn.className = 'button';
+                deleteBtn.className = 'button string-list-delete-btn';
                 deleteBtn.textContent = 'Удалить';
                 deleteBtn.style.background = '#ba2121';
                 deleteBtn.style.color = 'white';
@@ -73,11 +87,14 @@ class StringListWidget(forms.Widget):
                 
                 deleteBtn.addEventListener('click', function() {{
                     div.remove();
+                    updateDeleteButtons();
                 }});
                 
                 div.appendChild(input);
                 div.appendChild(deleteBtn);
                 container.appendChild(div);
+                
+                updateDeleteButtons();
             }}
             
             // Render existing values
