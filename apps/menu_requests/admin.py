@@ -106,8 +106,8 @@ class MenuRequestAdmin(admin.ModelAdmin):
         obj = self.get_object(request, object_id)
         if obj:
             try:
-                from ..orders.email import send_menu_request_email_notification
-                send_menu_request_email_notification(obj)
+                from ..orders.email import send_menu_request_email_notification_sync
+                send_menu_request_email_notification_sync(obj.id, raise_exception=True)
                 self.message_user(request, "Уведомление на почту успешно отправлено!", messages.SUCCESS)
             except Exception as e:
                 self.message_user(request, f"Ошибка при отправке: {e}", messages.ERROR)

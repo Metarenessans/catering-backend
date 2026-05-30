@@ -1,0 +1,109 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main" style="max-width: 1000px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <div style="background: linear-gradient(135deg, #2b3a4a 0%, #1e2836 100%); color: #fff; padding: 24px 32px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #fff; border: none; padding: 0;">🛠️ Диагностика и проверка SMTP</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.8; font-size: 15px;">Панель для проверки настроек почты, отправки тестовых писем и поиска неисправностей подключения.</p>
+    </div>
+
+    <!-- Настройки почты -->
+    <div style="background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #e0e0e0;">
+        <h2 style="margin-top: 0; color: #1e2836; font-size: 18px; border-bottom: 2px solid #f4f5f7; padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            ⚙️ Переменные окружения (SMTP-конфигурация)
+        </h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
+            <thead>
+                <tr style="border-bottom: 1px solid #e0e0e0; text-align: left;">
+                    <th style="padding: 10px; color: #666; font-weight: 600;">Переменная</th>
+                    <th style="padding: 10px; color: #666; font-weight: 600;">Значение в Django</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, val in settings_info.items %}
+                <tr style="border-bottom: 1px solid #f4f5f7;">
+                    <td style="padding: 12px 10px; font-family: monospace; font-weight: bold; color: #555;">{{ key }}</td>
+                    <td style="padding: 12px 10px; font-family: monospace; color: {% if 'Не задан' in val or 'Пусто' in val %}#d9534f{% else %}#2b3a4a{% endif %}; font-size: 13px;">
+                        {{ val }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Получатели уведомлений -->
+    <div style="background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid #e0e0e0;">
+        <h2 style="margin-top: 0; color: #1e2836; font-size: 18px; border-bottom: 2px solid #f4f5f7; padding-bottom: 12px;">
+            👥 Получатели уведомлений (EmailSubscriber)
+        </h2>
+        <p style="font-size: 14px; color: #555; margin-bottom: 15px;">
+            Количество активных подписчиков, которые получают уведомления при создании новых заказов или подборов меню: 
+            <strong>{{ subscribers_info.count }}</strong>
+        </p>
+        {% if subscribers_info.emails %}
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                {% for email in subscribers_info.emails %}
+                    <span style="background-color: #e3f2fd; color: #0d47a1; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-family: monospace; font-weight: 600; border: 1px solid #bbdefb;">
+                        {{ email }}
+                    </span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; font-size: 14px;">
+                ⚠️ <strong>Внимание!</strong> Список подписчиков пуст. Никакие уведомления о заказах отправляться не будут.
+                Добавьте активного подписчика в Django Admin.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Интерактивная форма отправки теста -->
+    <div style="background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e0e0e0; margin-bottom: 30px;">
+        <h2 style="margin-top: 0; color: #1e2836; font-size: 18px; border-bottom: 2px solid #f4f5f7; padding-bottom: 12px;">
+            🚀 Отправить тестовое письмо (Проверка связи)
+        </h2>
+        <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+            Отправляет тестовое сообщение на любой указанный почтовый ящик напрямую через SMTP-клиент Django.
+        </p>
+
+        {% if test_status == "success" %}
+            <div style="background-color: #d4edda; color: #155724; padding: 20px; border-radius: 8px; border: 1px solid #c3e6cb; margin-bottom: 20px; font-size: 14px;">
+                🎉 <strong>Успешно!</strong> Тестовое письмо было успешно отправлено на адрес <code>{{ test_email }}</code>.
+                Проверьте входящие письма (и папку «Спам»).
+            </div>
+        {% elif test_status == "error" %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 20px; border-radius: 8px; border: 1px solid #f5c6cb; margin-bottom: 20px; font-size: 14px;">
+                ❌ <strong>Ошибка при отправке SMTP:</strong>
+                <pre style="background: #fff; color: #333; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; overflow-x: auto; margin-top: 15px; font-family: monospace; font-size: 12px; line-height: 1.5; white-space: pre-wrap;">{{ test_error }}</pre>
+                <div style="margin-top: 15px;">
+                    💡 <strong>Рекомендации по устранению ошибок:</strong>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                        <li><strong>AuthenticationFailed (535 5.7.8):</strong> Убедитесь, что вы используете <u>Пароль приложения Yandex</u>, а не обычный пароль от ящика.</li>
+                        <li><strong>Настройки Яндекса:</strong> Зайдите в веб-интерфейс Яндекс Почты -> Все настройки -> Почтовые программы -> включите флажок <u>"С сервера по протоколу SMTP"</u>.</li>
+                        <li><strong>ConnectionTimeout:</strong> Возможно, порт 465 закрыт фаерволом на сервере.</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="POST" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+            {% csrf_token %}
+            <div style="flex: 1; min-width: 250px;">
+                <label for="test_email" style="display: block; font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px;">Email получателя:</label>
+                <input type="email" name="test_email" id="test_email" value="{{ test_email }}" required
+                       style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; outline: none;">
+            </div>
+            <button type="submit" 
+                    style="background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background-color 0.2s;">
+                Отправить тестовое письмо
+            </button>
+        </form>
+    </div>
+    
+    <div>
+        <a href="../" style="display: inline-block; font-size: 14px; font-weight: 600; color: #007bff; text-decoration: none;">
+            ← Вернуться к списку подписчиков
+        </a>
+    </div>
+</div>
+{% endblock %}
