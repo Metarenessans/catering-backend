@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
+from django.db.models import Q
 from .models import Category, Product
 from .serializers import (
     CategorySerializer,
@@ -30,6 +31,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "slug"]
     ordering_fields = ["order", "name"]
     ordering = ["order"]
+
+    def get_queryset(self):
+        qs = Category.objects.all()
+        # Admins see all categories; public only sees active ones
+        if self.request.user and self.request.user.is_staff:
+            return qs
+        return qs.filter(is_active=True)
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
@@ -65,7 +73,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         # Admins see all products; public only sees active ones
         if self.request.user and self.request.user.is_staff:
             return qs
-        return qs.filter(is_active=True)
+        return qs.filter(is_active=True).filter(Q(category__is_active=True) | Q(category__isnull=True))
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:

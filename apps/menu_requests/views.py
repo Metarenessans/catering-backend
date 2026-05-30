@@ -64,12 +64,18 @@ class AdditionalServiceViewSet(viewsets.ModelViewSet):
     """
     CRUD для дополнительных услуг (Выездное накрытие, Официанты и т.д.)
     """
-    queryset = AdditionalService.objects.filter(is_active=True)
+    queryset = AdditionalService.objects.all()
     serializer_class = AdditionalServiceSerializer
     pagination_class = None
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ["label"]
     ordering = ["order"]
+
+    def get_queryset(self):
+        qs = AdditionalService.objects.all()
+        if self.request.user and self.request.user.is_staff:
+            return qs
+        return qs.filter(is_active=True)
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
@@ -81,11 +87,17 @@ class EventFormatViewSet(viewsets.ModelViewSet):
     """
     CRUD для форматов мероприятий (Юбилей, Свадьба, Фуршет и т.д.)
     """
-    queryset = EventFormat.objects.filter(is_active=True)
+    queryset = EventFormat.objects.all()
     serializer_class = EventFormatSerializer
     pagination_class = None
     filter_backends = [OrderingFilter]
     ordering = ["order"]
+
+    def get_queryset(self):
+        qs = EventFormat.objects.all()
+        if self.request.user and self.request.user.is_staff:
+            return qs
+        return qs.filter(is_active=True)
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
