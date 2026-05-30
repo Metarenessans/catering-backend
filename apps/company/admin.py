@@ -24,9 +24,4 @@ class FooterNavigationAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.Model
     list_filter = ["category"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
-
 

@@ -65,11 +65,6 @@ class OrderAdmin(admin.ModelAdmin):
     list_editable = ["status"]
     inlines = [OrderItemInline]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
-
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [

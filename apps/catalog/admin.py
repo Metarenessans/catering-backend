@@ -11,10 +11,6 @@ class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
     fields = ["amount", "unit"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
 
 class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
@@ -23,10 +19,6 @@ class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
     fields = ["name", "price", "old_price"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
 
 @admin.register(Category)
@@ -38,10 +30,6 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_editable = ["is_active"]
     prepopulated_fields = {"slug": ("name",)}
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
 
 @admin.register(Product)
@@ -65,10 +53,6 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
 
 

@@ -23,10 +23,5 @@ class FaqItemAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     search_fields = ["question"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
-
 
 

@@ -35,10 +35,6 @@ class MenuRequestAdmin(admin.ModelAdmin):
     ]
     list_editable = ["status"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
     fieldsets = [
         (
@@ -160,10 +156,6 @@ class AdditionalServiceAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.Mode
     autocomplete_fields = ["linked_product"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
 
 
 @admin.register(EventFormat)
@@ -173,8 +165,5 @@ class EventFormatAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin
     search_fields = ["name"]
     ordering = ["order"]
 
-    class Media:
-        css = {
-            "all": ("admin/css/sortable_custom.css",)
-        }
+
 
