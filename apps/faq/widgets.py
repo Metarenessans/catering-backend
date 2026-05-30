@@ -115,7 +115,17 @@ class StringListWidget(forms.Widget):
         
     def value_from_datadict(self, data, files, name):
         # Fetch list of submitted values under this name
-        values = data.getlist(name)
-        # Clean and filter out empty strings
-        cleaned = [v.strip() for v in values if v and v.strip()]
+        if hasattr(data, 'getlist'):
+            values = data.getlist(name)
+        else:
+            values = data.get(name)
+            
+        if values is None:
+            return []
+            
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+            
+        # Clean and filter out empty strings safely
+        cleaned = [str(v).strip() for v in values if v and str(v).strip()]
         return cleaned
