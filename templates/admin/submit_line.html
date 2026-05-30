@@ -2,11 +2,8 @@
 <div class="submit-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; gap: 10px; flex-wrap: wrap; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
 {% block submit-row %}
 
-    <!-- Левый пустой блок для баланса центрирования -->
-    <div style="flex: 1;"></div>
-
-    <!-- Центральный блок с основными кнопками -->
-    <div style="display: flex; gap: 10px; justify-content: center; flex: 3; flex-wrap: wrap;">
+    <!-- Левый блок с основными кнопками -->
+    <div style="display: flex; gap: 10px; justify-content: flex-start; flex-wrap: wrap; flex: 1;">
         {% if show_save_and_continue %}
             <input type="submit" value="Сохранить" class="default" name="_continue" style="margin: 0;">
         {% endif %}
