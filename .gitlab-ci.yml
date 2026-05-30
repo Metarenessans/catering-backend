@@ -120,6 +120,8 @@ deploy_backend:
           exit 1
         fi
       ENDSSH
-  only:
-    - main
-  when: manual
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $AUTO_DEPLOY == "true"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
