@@ -1,31 +1,42 @@
 {% load i18n admin_urls %}
-<div class="submit-row">
+<div class="submit-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; gap: 10px; flex-wrap: wrap; background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px;">
 {% block submit-row %}
 
-{% if show_save_and_continue %}
-    <input type="submit" value="Сохранить" class="default" name="_continue">
-{% endif %}
+    <!-- Левый пустой блок для баланса центрирования -->
+    <div style="flex: 1;"></div>
 
-{% if show_save %}
-    <input type="submit" value="Сохранить и выйти" name="_save">
-{% endif %}
+    <!-- Центральный блок с основными кнопками -->
+    <div style="display: flex; gap: 10px; justify-content: center; flex: 3; flex-wrap: wrap;">
+        {% if show_save_and_continue %}
+            <input type="submit" value="Сохранить" class="default" name="_continue" style="margin: 0;">
+        {% endif %}
 
-{% if show_save_and_add_another %}
-    <input type="submit" value="Сохранить и добавить новый" name="_addanother">
-{% endif %}
+        {% if show_save %}
+            <input type="submit" value="Сохранить и выйти" name="_save" style="margin: 0;">
+        {% endif %}
 
-{% if show_save_as_new %}
-    <input type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">
-{% endif %}
+        {% if show_save_and_add_another %}
+            <input type="submit" value="Сохранить и добавить новый" name="_addanother" style="margin: 0;">
+        {% endif %}
 
-{% if show_delete_link and original %}
-    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
-    <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a></p>
-{% endif %}
+        {% if show_save_as_new %}
+            <input type="submit" value="{% translate 'Save as new' %}" name="_saveasnew" style="margin: 0;">
+        {% endif %}
 
-{% if show_close %}
-    <a href="{% url opts|admin_urlname:'changelist' %}" class="closelink">{% translate 'Close' %}</a>
-{% endif %}
+        {% if show_close %}
+            <a href="{% url opts|admin_urlname:'changelist' %}" class="closelink button" style="margin: 0; display: inline-flex; align-items: center;">{% translate 'Close' %}</a>
+        {% endif %}
+    </div>
+
+    <!-- Правый блок (Удалить) -->
+    <div style="flex: 1; display: flex; justify-content: flex-end;">
+        {% if show_delete_link and original %}
+            {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+            <p class="deletelink-box" style="margin: 0;">
+                <a href="{% add_preserved_filters delete_url %}" class="deletelink button" style="background: #ba2121; color: white; padding: 10px 15px; border-radius: 4px; border: none; height: auto; margin: 0; text-decoration: none; display: inline-flex; align-items: center; box-sizing: border-box;">{% translate "Delete" %}</a>
+            </p>
+        {% endif %}
+    </div>
 
 {% endblock %}
 </div>
