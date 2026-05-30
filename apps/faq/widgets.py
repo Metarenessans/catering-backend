@@ -114,18 +114,17 @@ class StringListWidget(forms.Widget):
         return mark_safe(html)
         
     def value_from_datadict(self, data, files, name):
-        # Fetch list of submitted values under this name
         if hasattr(data, 'getlist'):
             values = data.getlist(name)
         else:
             values = data.get(name)
             
         if values is None:
-            return []
+            return json.dumps([])
             
         if not isinstance(values, (list, tuple)):
             values = [values]
             
         # Clean and filter out empty strings safely
         cleaned = [str(v).strip() for v in values if v and str(v).strip()]
-        return cleaned
+        return json.dumps(cleaned, ensure_ascii=False)
