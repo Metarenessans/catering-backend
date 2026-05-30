@@ -178,3 +178,34 @@ class TelegramSubscriber(models.Model):
         connected = "подключен" if self.chat_id else "ожидает подключения"
         return f"{ident_str} ({status}, {connected})"
 
+
+class EmailSubscriber(models.Model):
+    email = models.EmailField(
+        unique=True,
+        verbose_name="Email",
+        help_text="Адрес электронной почты для получения уведомлений",
+    )
+    name = models.CharField(
+        max_length=150,
+        blank=True,
+        default="",
+        verbose_name="Имя владельца",
+        help_text="Опционально (например: Менеджер Иван)",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активен",
+        help_text="Если снято, на этот адрес не будут приходить уведомления",
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+
+    class Meta:
+        verbose_name = "Подписчик Email"
+        verbose_name_plural = "Подписчики Email"
+
+    def __str__(self):
+        status = "активен" if self.is_active else "отключен"
+        if self.name:
+            return f"{self.name} <{self.email}> ({status})"
+        return f"{self.email} ({status})"

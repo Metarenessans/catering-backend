@@ -84,6 +84,11 @@ class MenuRequestAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.send_telegram_view),
                 name='menu-request-send-telegram',
             ),
+            path(
+                '<path:object_id>/send-email/',
+                self.admin_site.admin_view(self.send_email_view),
+                name='menu-request-send-email',
+            ),
         ]
         return custom_urls + urls
 
@@ -97,13 +102,28 @@ class MenuRequestAdmin(admin.ModelAdmin):
                 self.message_user(request, f"Ошибка при отправке: {e}", messages.ERROR)
         return HttpResponseRedirect("../change/")
 
-    @admin.display(description="Отправка уведомления")
+    def send_email_view(self, request, object_id):
+        obj = self.get_object(request, object_id)
+        if obj:
+            try:
+                from ..orders.email import send_menu_request_email_notification
+                send_menu_request_email_notification(obj)
+                self.message_user(request, "Уведомление на почту успешно отправлено!", messages.SUCCESS)
+            except Exception as e:
+                self.message_user(request, f"Ошибка при отправке: {e}", messages.ERROR)
+        return HttpResponseRedirect("../change/")
+
+    @admin.display(description="Отправка уведомлений")
     def send_telegram_button(self, obj):
         if obj and obj.pk:
-            url = reverse('admin:menu-request-send-telegram', args=[obj.pk])
+            tg_url = reverse('admin:menu-request-send-telegram', args=[obj.pk])
+            email_url = reverse('admin:menu-request-send-email', args=[obj.pk])
             return mark_safe(
-                f'<a class="button" href="{url}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">'
-                f'Отправить уведомление в Telegram'
+                f'<a class="button" href="{tg_url}" style="background-color: #007bff; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block; margin-right: 10px;">'
+                f'Отправить в Telegram'
+                f'</a>'
+                f'<a class="button" href="{email_url}" style="background-color: #28a745; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-block;">'
+                f'Отправить на почту'
                 f'</a>'
             )
         return "Сначала сохраните объект"
