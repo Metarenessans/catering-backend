@@ -41,6 +41,18 @@ class CompanyInfo(models.Model):
         default=1500,
         verbose_name="Стоимость доставки (₽)",
     )
+    hero_image_top = models.ImageField(
+        upload_to="hero/",
+        null=True,
+        blank=True,
+        verbose_name="Изображение для хиро-секции (верхнее)",
+    )
+    hero_image_bottom = models.ImageField(
+        upload_to="hero/",
+        null=True,
+        blank=True,
+        verbose_name="Изображение для хиро-секции (нижнее)",
+    )
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
     class Meta:

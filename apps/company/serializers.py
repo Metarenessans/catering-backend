@@ -20,6 +20,8 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             "min_order_amount",
             "free_delivery_threshold",
             "delivery_cost",
+            "hero_image_top",
+            "hero_image_bottom",
             "updated_at",
         ]
         read_only_fields = ["id", "updated_at"]
