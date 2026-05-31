@@ -47,6 +47,12 @@ class CompanyInfo(models.Model):
         blank=True,
         verbose_name="Изображение для хиро-секции (верхнее)",
     )
+    hero_image_top_mobile = models.ImageField(
+        upload_to="hero/",
+        null=True,
+        blank=True,
+        verbose_name="Изображение для хиро-секции (верхнее, мобильное)",
+    )
     hero_image_bottom = models.ImageField(
         upload_to="hero/",
         null=True,
