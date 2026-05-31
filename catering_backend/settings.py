@@ -170,11 +170,20 @@ SPECTACULAR_SETTINGS = {
 
 # ─── Email Settings ───────────────────────────────────────────────────────────
 
+def _clean_email_var(val):
+    if not val:
+        return ""
+    if "=" in val:
+        parts = val.split("=", 1)
+        if parts[0].strip() in ["EMAIL_HOST", "EMAIL_PORT", "EMAIL_HOST_USER", "EMAIL_HOST_PASSWORD", "DEFAULT_FROM_EMAIL", "EMAIL_USE_SSL", "EMAIL_USE_TLS"]:
+            return parts[1].strip()
+    return val.strip()
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("EMAIL_HOST") or "smtp.yandex.ru"
-EMAIL_PORT = int(os.getenv("EMAIL_PORT") or 465)
-EMAIL_USE_SSL = (os.getenv("EMAIL_USE_SSL") or "True") == "True"
-EMAIL_USE_TLS = (os.getenv("EMAIL_USE_TLS") or "False") == "True"
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER") or ""
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") or ""
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL") or EMAIL_HOST_USER
+EMAIL_HOST = _clean_email_var(os.getenv("EMAIL_HOST")) or "smtp.yandex.ru"
+EMAIL_PORT = int(_clean_email_var(os.getenv("EMAIL_PORT")) or 465)
+EMAIL_USE_SSL = (_clean_email_var(os.getenv("EMAIL_USE_SSL")) or "True") == "True"
+EMAIL_USE_TLS = (_clean_email_var(os.getenv("EMAIL_USE_TLS")) or "False") == "True"
+EMAIL_HOST_USER = _clean_email_var(os.getenv("EMAIL_HOST_USER")) or ""
+EMAIL_HOST_PASSWORD = _clean_email_var(os.getenv("EMAIL_HOST_PASSWORD")) or ""
+DEFAULT_FROM_EMAIL = _clean_email_var(os.getenv("DEFAULT_FROM_EMAIL")) or EMAIL_HOST_USER
