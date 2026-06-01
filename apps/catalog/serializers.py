@@ -17,13 +17,13 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductExtraInfo
-        fields = ["id", "amount", "unit", "order"]
+        fields = ["id", "amount", "unit", "is_active", "order"]
 
 
 class ProductOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductOption
-        fields = ["id", "name", "price", "old_price", "min_order_quantity", "order"]
+        fields = ["id", "name", "price", "old_price", "min_order_quantity", "is_active", "order"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -80,6 +80,7 @@ class ProductSerializer(serializers.ModelSerializer):
         extra_info_list = [
             {"amount": float(info.amount), "unit": info.unit}
             for info in instance.extra_info.all()
+            if info.is_active
         ]
         
         options_list = [
@@ -91,6 +92,7 @@ class ProductSerializer(serializers.ModelSerializer):
                 "minOrderQuantity": opt.min_order_quantity if opt.min_order_quantity is not None else instance.min_order_quantity,
             }
             for opt in instance.options.all()
+            if opt.is_active
         ]
         
         # 3. Build response dictionary instantly

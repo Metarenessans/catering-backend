@@ -8,7 +8,7 @@ from .mixins import MakeFirstAdminMixin
 class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ProductExtraInfo
     extra = 1
-    fields = ["amount", "unit", "order"]
+    fields = ["amount", "unit", "is_active", "order"]
     ordering = ["order"]
 
 
@@ -16,7 +16,7 @@ class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
 class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ProductOption
     extra = 1
-    fields = ["name", "price", "old_price", "min_order_quantity", "order"]
+    fields = ["name", "price", "old_price", "min_order_quantity", "is_active", "order"]
     ordering = ["order"]
 
 

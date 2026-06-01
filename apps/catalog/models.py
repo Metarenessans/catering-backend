@@ -43,6 +43,7 @@ class ProductExtraInfo(models.Model):
         verbose_name="Количество/вес",
     )
     unit = models.CharField(max_length=50, verbose_name="Единица измерения")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
 
     class Meta:
@@ -163,6 +164,7 @@ class ProductOption(models.Model):
         verbose_name="Минимальное количество заказа",
         help_text="Минимальное количество товара для заказа этого варианта. Если пусто, используется ограничение продукта.",
     )
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
 
     class Meta:
