@@ -242,15 +242,6 @@
     height: auto !important;
 }
 
-.inline-group .tabular tr td.delete a.inline-deletelink::before,
-.inline-group .tabular tr td.delete .inline-deletelink::before {
-    content: "Удалить" !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    display: block !important;
-    color: #ffffff !important;
-    text-align: center !important;
-}
 
 .inline-group .tabular tr td.delete a.inline-deletelink:hover,
 .inline-group .tabular tr td.delete .inline-deletelink:hover {
