@@ -16,7 +16,7 @@ class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
 class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
     model = ProductOption
     extra = 1
-    fields = ["name", "price", "old_price", "order"]
+    fields = ["name", "price", "old_price", "min_order_quantity", "order"]
     ordering = ["order"]
 
 

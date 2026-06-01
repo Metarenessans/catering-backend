@@ -157,6 +157,12 @@ class ProductOption(models.Model):
         blank=True,
         verbose_name="Старая цена варианта (₽)",
     )
+    min_order_quantity = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Минимальное количество заказа",
+        help_text="Минимальное количество товара для заказа этого варианта. Если пусто, используется ограничение продукта.",
+    )
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
 
     class Meta:

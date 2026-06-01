@@ -23,7 +23,7 @@ class ProductExtraInfoSerializer(serializers.ModelSerializer):
 class ProductOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductOption
-        fields = ["id", "name", "price", "old_price", "order"]
+        fields = ["id", "name", "price", "old_price", "min_order_quantity", "order"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -88,6 +88,7 @@ class ProductSerializer(serializers.ModelSerializer):
                 "name": opt.name,
                 "price": float(opt.price),
                 "oldPrice": float(opt.old_price) if opt.old_price is not None else None,
+                "minOrderQuantity": opt.min_order_quantity if opt.min_order_quantity is not None else instance.min_order_quantity,
             }
             for opt in instance.options.all()
         ]
