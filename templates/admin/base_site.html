@@ -9,15 +9,16 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'admin/css/sortable_custom.css' %}?v=1.5">
+  <link rel="stylesheet" type="text/css" href="{% static 'admin/css/sortable_custom.css' %}?v=1.6">
   <style>
     /* Direct override to ensure no browser cache issues and perfect delete buttons */
     
-    /* Align delete column header and cells */
+    /* Align delete column header and cells to the right */
     .inline-group .tabular th.delete {
         color: transparent !important;
         font-size: 0 !important;
-        text-align: center !important;
+        text-align: right !important;
+        padding-right: 16px !important;
         width: 110px !important;
         min-width: 110px !important;
     }
@@ -30,24 +31,30 @@
         font-weight: 700 !important;
         letter-spacing: 0.5px !important;
         display: block !important;
-        text-align: center !important;
+        text-align: right !important;
     }
 
     .inline-group .tabular tr td.delete {
-        text-align: center !important;
+        text-align: right !important;
         vertical-align: middle !important;
-        padding: 8px 4px !important;
+        padding: 8px 16px 8px 4px !important;
         position: relative !important;
         cursor: pointer !important;
+    }
+
+    /* Hide the td's pseudo-element button if a dynamic remove link is present to avoid duplicates */
+    .inline-group .tabular tr td.delete:has(a.inline-deletelink)::before,
+    .inline-group .tabular tr td.delete:has(.inline-deletelink)::before {
+        display: none !important;
     }
 
     /* Transform the standard checkbox into an invisible clickable overlay covering the button area */
     .inline-group .tabular tr td.delete input[type="checkbox"] {
         position: absolute !important;
         top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 80px !important;
+        right: 16px !important;
+        transform: translateY(-50%) !important;
+        width: 82px !important;
         height: 30px !important;
         opacity: 0 !important; /* Make it completely invisible */
         cursor: pointer !important;
@@ -55,29 +62,30 @@
         z-index: 10 !important;
     }
 
-    /* Create the premium red "Удалить" button using pseudo-element on td.delete */
+    /* Create the premium solid red "Удалить" button using pseudo-element on td.delete */
     .inline-group .tabular tr td.delete::before {
         content: "Удалить" !important;
         display: inline-block !important;
         padding: 6px 14px !important;
-        background-color: #fef2f2 !important; /* Light red background */
-        color: #dc2626 !important; /* Deep red text */
-        border: 1px solid #fca5a5 !important; /* Red border */
+        background-color: #dc2626 !important; /* Solid red background */
+        color: #ffffff !important; /* White text */
+        border: 1px solid #dc2626 !important;
         border-radius: 6px !important;
         font-size: 12px !important;
         font-weight: 600 !important;
         text-align: center !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05) !important;
-        pointer-events: none !important; /* Let clicks pass through to the invisible checkbox */
+        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1) !important;
+        pointer-events: none !important; /* Let clicks pass through */
+        width: 82px !important;
+        box-sizing: border-box !important;
     }
 
     /* Hover state for the button (triggered when hovering over the cell/checkbox) */
     .inline-group .tabular tr td.delete:hover::before {
-        background-color: #fee2e2 !important;
-        color: #b91c1c !important;
-        border-color: #f87171 !important;
-        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.08) !important;
+        background-color: #b91c1c !important; /* Darker red */
+        border-color: #b91c1c !important;
+        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.15) !important;
     }
 
     /* Active / Pressed state */
@@ -92,6 +100,7 @@
         color: #4b5563 !important; /* Dark gray text */
         border-color: #d1d5db !important;
         box-shadow: none !important;
+        width: 106px !important; /* slightly wider for "Восстановить" text */
     }
 
     /* Hover state when checked - turns green to restore */
@@ -100,6 +109,11 @@
         color: #ffffff !important;
         border-color: #10b981 !important;
         box-shadow: 0 4px 6px rgba(16, 185, 129, 0.15) !important;
+    }
+
+    /* Adjust checkbox position for checked state so it still aligns with the wider button */
+    .inline-group .tabular tr:has(td.delete input[type="checkbox"]:checked) td.delete input[type="checkbox"] {
+        width: 106px !important;
     }
 
     /* --- Row-level visual deletion effect and input locking --- */
@@ -138,9 +152,9 @@
         display: inline-block !important;
         vertical-align: middle !important;
         padding: 6px 14px !important;
-        background-color: #fef2f2 !important;
-        color: #dc2626 !important;
-        border: 1px solid #fca5a5 !important;
+        background-color: #dc2626 !important; /* Solid red background */
+        color: #ffffff !important; /* White text */
+        border: 1px solid #dc2626 !important;
         border-radius: 6px !important;
         font-size: 12px !important;
         font-weight: 600 !important;
@@ -148,15 +162,29 @@
         cursor: pointer !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
         text-align: center !important;
-        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05) !important;
+        box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1) !important;
+        width: 82px !important;
+        box-sizing: border-box !important;
+        background-image: none !important; /* Remove the default grey cross icon! */
+        text-indent: 0 !important; /* Render the text content instead of shifting it out */
+        height: auto !important;
+    }
+
+    .inline-group .tabular tr td.delete a.inline-deletelink::before,
+    .inline-group .tabular tr td.delete .inline-deletelink::before {
+        content: "Удалить" !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        display: block !important;
+        color: #ffffff !important;
+        text-align: center !important;
     }
 
     .inline-group .tabular tr td.delete a.inline-deletelink:hover,
     .inline-group .tabular tr td.delete .inline-deletelink:hover {
-        background-color: #fee2e2 !important;
-        color: #b91c1c !important;
-        border-color: #f87171 !important;
-        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.08) !important;
+        background-color: #b91c1c !important;
+        border-color: #b91c1c !important;
+        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.15) !important;
         text-decoration: none !important;
     }
 
