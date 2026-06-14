@@ -106,8 +106,10 @@ deploy_backend:
         mv "$BUILD_DIR" "$LIVE_DIR"
         rm -rf /root/catering/backend_old
 
-        # 9. Restart the backend service
-        echo "[9/9] Restarting backend via PM2..."
+        # 9. Clear Python bytecode cache and restart the backend service
+        echo "[9/9] Clearing Python __pycache__ and restarting backend via PM2..."
+        find "$LIVE_DIR" -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true
+        find "$LIVE_DIR" -name '*.pyc' -delete 2>/dev/null || true
         pm2 restart backend
 
         # 10. Deployment health check
