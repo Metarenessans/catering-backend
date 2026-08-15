@@ -155,4 +155,7 @@ staticfiles/
 # Telethon session files (Sensitive data)
 *.session
 
+# Media files
+media/
+
 
