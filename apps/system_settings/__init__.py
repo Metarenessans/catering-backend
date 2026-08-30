@@ -1,0 +1,1 @@
+"""System settings Django app."""

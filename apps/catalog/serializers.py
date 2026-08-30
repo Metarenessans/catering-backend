@@ -1,5 +1,25 @@
 from rest_framework import serializers
-from .models import Category, Product, ProductExtraInfo, ProductOption
+from .models import Section, Category, Product, ProductExtraInfo, ProductOption
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ["id", "slug", "name", "image", "image_url", "order", "is_active"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        request = self.context.get("request")
+        url = instance.effective_image_url
+        if url and not (url.startswith("http://") or url.startswith("https://")):
+            if request and url.startswith("/"):
+                url = request.build_absolute_uri(url)
+
+        # Standard format for frontend compatibility
+        ret["id"] = ret.pop("slug", "")
+        ret["imageUrl"] = url
+        ret["categories"] = [c.slug for c in instance.categories.all() if c.is_active]
+        return ret
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -11,6 +31,9 @@ class CategorySerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         # Frontend expects `id` to be the slug
         ret["id"] = ret.pop("slug", "")
+        section_slugs = [s.slug for s in instance.sections.all() if s.is_active]
+        ret["sectionIds"] = section_slugs
+        ret["sectionId"] = section_slugs[0] if section_slugs else None
         return ret
 
 

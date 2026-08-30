@@ -72,16 +72,14 @@ def get_telegram_username_by_phone(phone):
         
     session_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'anon.session')
     
-    # Configure the proxy for Telethon to bypass server IP blocks and timeouts.
-    # Telethon requires SOCKS5 proxy (not HTTP) for MTProto protocol.
-    proxy = (
-        "socks5",
-        os.getenv("PROXY_HOST", "103.74.76.22"),
-        int(os.getenv("PROXY_PORT", "8000")),
-        True,
-        os.getenv("PROXY_USER", "5ZYv38"),
-        os.getenv("PROXY_PASS", "JY4TBx"),
-    )
+    # Configure the proxy for Telethon from SystemSettings (or fallback to .env)
+    try:
+        from ..system_settings.utils import get_telegram_proxy_config
+        cfg = get_telegram_proxy_config()
+        proxy = cfg["telethon_proxy"] if cfg else None
+    except Exception as exc:
+        logger.warning(f"Failed to resolve proxy config for Telethon: {exc}")
+        proxy = None
     
     async def fetch():
         client = TelegramClient(session_path, int(api_id), api_hash, proxy=proxy)
@@ -318,13 +316,15 @@ def _send_to_telegram(text):
             "parse_mode": "HTML",
             "disable_web_page_preview": True
         }
-        proxy_host = os.getenv("PROXY_HOST", "103.74.76.22")
-        proxy_port = os.getenv("PROXY_PORT", "8000")
-        proxy_user = os.getenv("PROXY_USER", "5ZYv38")
-        proxy_pass = os.getenv("PROXY_PASS", "JY4TBx")
-        proxy_url = f"http://{proxy_user}:{proxy_pass}@{proxy_host}:{proxy_port}"
-        proxies = {"http": proxy_url, "https": proxy_url}
         try:
-            requests.post(url, json=payload, proxies=proxies, timeout=5)
+            from ..system_settings.utils import get_telegram_proxy_config
+            cfg = get_telegram_proxy_config()
+            proxies = cfg["requests_proxies"] if cfg else None
+        except Exception as exc:
+            logger.warning(f"Failed to resolve proxy config for sendMessage: {exc}")
+            proxies = None
+
+        try:
+            requests.post(url, json=payload, proxies=proxies, timeout=10)
         except Exception as e:
             logger.error(f"Failed to send Telegram notification to {chat_id}: {e}")

@@ -1,6 +1,65 @@
 from django.db import models
 
 
+class Section(models.Model):
+    """
+    Раздел каталога (например: Фуршет, Банкет, Детское меню).
+    Содержит в себе категории (связь ManyToMany).
+    """
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        verbose_name="Идентификатор (slug)",
+        help_text="Используется как фильтр раздела (например: furshet, banquet)",
+    )
+    name = models.CharField(max_length=200, verbose_name="Название")
+    categories = models.ManyToManyField(
+        "Category",
+        blank=True,
+        related_name="sections",
+        verbose_name="Категории",
+        help_text="Выберите категории, входящие в этот раздел",
+    )
+    image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default="",
+        verbose_name="URL изображения (внешний)",
+    )
+    image = models.ImageField(
+        upload_to="sections/",
+        null=True,
+        blank=True,
+        verbose_name="Изображение (загружаемое)",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+
+    class Meta:
+        verbose_name = "Раздел"
+        verbose_name_plural = "Разделы"
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def effective_image_url(self):
+        """Возвращает URL изображения: сначала загруженное, затем внешнее."""
+        if self.image:
+            url = self.image.url
+            from django.conf import settings
+            import os
+            try:
+                if settings.DEBUG and not os.path.exists(self.image.path):
+                    return f"https://chefmil-furshet.ru{url}"
+            except ValueError:
+                pass
+            return url
+        return self.image_url
+
+
 class Category(models.Model):
     """
     Категория продуктов.

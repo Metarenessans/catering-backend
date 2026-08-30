@@ -5,13 +5,45 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 from django.db.models import Q
-from .models import Category, Product
+from .models import Section, Category, Product
 from .serializers import (
+    SectionSerializer,
     CategorySerializer,
     ProductSerializer,
     ProductWriteSerializer,
 )
 from .filters import ProductFilter
+
+
+class SectionViewSet(viewsets.ModelViewSet):
+    """
+    CRUD для разделов продуктов.
+
+    list:   GET  /api/v1/catalog/sections/
+    create: POST /api/v1/catalog/sections/
+    retrieve: GET /api/v1/catalog/sections/{id}/
+    update: PUT  /api/v1/catalog/sections/{id}/
+    destroy: DELETE /api/v1/catalog/sections/{id}/
+    """
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
+    pagination_class = None
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ["name", "slug"]
+    ordering_fields = ["order", "name"]
+    ordering = ["order"]
+
+    def get_queryset(self):
+        qs = Section.objects.prefetch_related("categories").all()
+        # Admins see all sections; public only sees active ones
+        if self.request.user and self.request.user.is_staff:
+            return qs
+        return qs.filter(is_active=True)
+
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -27,13 +59,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None
-    filter_backends = [SearchFilter, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["sections", "sections__slug"]
     search_fields = ["name", "slug"]
     ordering_fields = ["order", "name"]
     ordering = ["order"]
 
     def get_queryset(self):
-        qs = Category.objects.all()
+        qs = Category.objects.prefetch_related("sections").all()
         # Admins see all categories; public only sees active ones
         if self.request.user and self.request.user.is_staff:
             return qs

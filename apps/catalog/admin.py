@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
-from .models import Category, Product, ProductExtraInfo, ProductOption
+from .models import Section, Category, Product, ProductExtraInfo, ProductOption
 from .mixins import MakeFirstAdminMixin
 
 
@@ -21,14 +21,75 @@ class ProductOptionInline(SortableInlineAdminMixin, admin.TabularInline):
 
 
 
-@admin.register(Category)
-class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
-    list_display = ["order", "name", "slug", "is_active"]
+@admin.register(Section)
+class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
+    list_display = ["order", "name", "slug", "get_categories_count", "image_preview", "is_active"]
     list_filter = ["is_active"]
     search_fields = ["name", "slug"]
     ordering = ["order"]
     list_editable = ["is_active"]
     prepopulated_fields = {"slug": ("name",)}
+    filter_horizontal = ["categories"]
+    readonly_fields = ["image_preview", "created_at"]
+
+    fieldsets = [
+        (
+            "Основная информация",
+            {
+                "fields": ["name", "slug", "order", "is_active"],
+            },
+        ),
+        (
+            "Категории раздела",
+            {
+                "fields": ["categories"],
+                "description": "Выберите категории, входящие в этот раздел.",
+            },
+        ),
+        (
+            "Изображение раздела",
+            {
+                "fields": ["image", "image_url", "image_preview"],
+                "description": "Загрузите изображение или укажите внешний URL.",
+            },
+        ),
+        (
+            "Служебная информация",
+            {
+                "fields": ["created_at"],
+                "classes": ["collapse"],
+            },
+        ),
+    ]
+
+    def image_preview(self, obj):
+        url = obj.effective_image_url
+        if url:
+            return mark_safe(f'<img src="{url}" width="100" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />')
+        return "Нет фото"
+
+    image_preview.short_description = "Предпросмотр"
+
+    def get_categories_count(self, obj):
+        return obj.categories.count()
+
+    get_categories_count.short_description = "Категорий в разделе"
+
+
+@admin.register(Category)
+class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
+    list_display = ["order", "name", "get_sections", "slug", "is_active"]
+    list_filter = ["sections", "is_active"]
+    search_fields = ["name", "slug"]
+    ordering = ["order"]
+    list_editable = ["is_active"]
+    prepopulated_fields = {"slug": ("name",)}
+
+    def get_sections(self, obj):
+        sections = list(obj.sections.values_list("name", flat=True))
+        return ", ".join(sections) if sections else "—"
+
+    get_sections.short_description = "Разделы"
 
 
 

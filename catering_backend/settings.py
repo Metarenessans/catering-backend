@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.menu_requests",
     "apps.faq",
     "apps.company",
+    "apps.system_settings",
 ]
 
 # ─── Middleware ───────────────────────────────────────────────────────────────
