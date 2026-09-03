@@ -158,4 +158,9 @@ staticfiles/
 # Media files
 media/
 
+# Database dumps
+dump/
+*.sql
+*.dump
+
 
