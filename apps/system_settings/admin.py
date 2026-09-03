@@ -4,10 +4,19 @@ from .models import SystemSettings
 
 @admin.register(SystemSettings)
 class SystemSettingsAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "telegram_bot_proxy", "updated_at"]
+    list_display = ["__str__", "sitemap_cache_minutes", "telegram_bot_proxy", "updated_at"]
     readonly_fields = ["updated_at"]
 
     fieldsets = [
+        (
+            "SEO и карта сайта (Sitemap)",
+            {
+                "fields": ["sitemap_cache_minutes"],
+                "description": "Управление обновлением /sitemap.xml.<br>"
+                               "<b>0</b> — генерация на лету (force-dynamic): каждое обращение запрашивает свежие данные (идеально для разработки и частых правок).<br>"
+                               "<b>> 0</b> (например, 30 или 60) — кэширование на указанное количество минут для ускорения работы сайта и поисковых ботов.",
+            },
+        ),
         (
             "Интеграция с Telegram",
             {
