@@ -18,7 +18,12 @@ class SectionSerializer(serializers.ModelSerializer):
         # Standard format for frontend compatibility
         ret["id"] = ret.pop("slug", "")
         ret["imageUrl"] = url
-        ret["categories"] = [c.slug for c in instance.categories.all() if c.is_active]
+        section_categories = (
+            instance.section_categories.select_related("category")
+            .filter(category__is_active=True)
+            .order_by("order", "id")
+        )
+        ret["categories"] = [sc.category.slug for sc in section_categories]
         return ret
 
 

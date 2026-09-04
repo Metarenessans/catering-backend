@@ -253,5 +253,85 @@
 
 .inline-group .tabular tr td.delete a.inline-deletelink:active,
 .inline-group .tabular tr td.delete .inline-deletelink:active {
-    transform: scale(0.96) !important;
+    background-color: #991b1b !important;
 }
+
+/* --- Reorder Cell: Drag Handle, Number Badge, and Up/Down Arrows --- */
+.inline-group .tabular td.field-_reorder_ {
+    width: 100px !important;
+    min-width: 100px !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    padding: 6px 4px !important;
+}
+
+.reorder-cell-content {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+.order-badge {
+    display: inline-block !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    line-height: 20px !important;
+    text-align: center !important;
+    background: #eef2f6 !important;
+    color: #334155 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 4px !important;
+    border: 1px solid #cbd5e1 !important;
+    user-select: none !important;
+}
+
+.order-arrows-wrapper {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.btn-order-move {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 15px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    color: #475569 !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.btn-order-move:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.btn-order-move:disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    background-color: #f1f5f9 !important;
+    color: #94a3b8 !important;
+    border-color: #e2e8f0 !important;
+}
+
+@keyframes rowMovedFlash {
+    0% { background-color: rgba(37, 99, 235, 0.22); }
+    100% { background-color: transparent; }
+}
+
+.row-moved-highlight {
+    animation: rowMovedFlash 0.5s ease-out !important;
+}
+

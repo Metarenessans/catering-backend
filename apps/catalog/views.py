@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from django.db.models import Q
-from .models import Section, Category, Product
+from django.db.models import Q, Prefetch
+from .models import Section, Category, Product, SectionCategory
 from .serializers import (
     SectionSerializer,
     CategorySerializer,
@@ -34,7 +34,12 @@ class SectionViewSet(viewsets.ModelViewSet):
     ordering = ["order"]
 
     def get_queryset(self):
-        qs = Section.objects.prefetch_related("categories").all()
+        qs = Section.objects.prefetch_related(
+            Prefetch(
+                "section_categories",
+                queryset=SectionCategory.objects.select_related("category").filter(category__is_active=True).order_by("order", "id")
+            )
+        ).all()
         # Admins see all sections; public only sees active ones
         if self.request.user and self.request.user.is_staff:
             return qs

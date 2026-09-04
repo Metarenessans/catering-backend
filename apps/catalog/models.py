@@ -15,6 +15,7 @@ class Section(models.Model):
     name = models.CharField(max_length=200, verbose_name="Название")
     categories = models.ManyToManyField(
         "Category",
+        through="SectionCategory",
         blank=True,
         related_name="sections",
         verbose_name="Категории",
@@ -83,6 +84,39 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SectionCategory(models.Model):
+    """
+    Промежуточная модель связи Раздел — Категория.
+    Позволяет настраивать порядок отображения категорий индивидуально для каждого раздела.
+    """
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.CASCADE,
+        related_name="section_categories",
+        verbose_name="Раздел",
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="category_sections",
+        verbose_name="Категория",
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Порядок сортировки",
+        db_index=True,
+    )
+
+    class Meta:
+        verbose_name = "Категория раздела"
+        verbose_name_plural = "Категории раздела"
+        ordering = ["order", "id"]
+        unique_together = [("section", "category")]
+
+    def __str__(self):
+        return f"{self.section.name} — {self.category.name}"
 
 
 class ProductExtraInfo(models.Model):

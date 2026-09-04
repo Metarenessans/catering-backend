@@ -1,8 +1,17 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
-from .models import Section, Category, Product, ProductExtraInfo, ProductOption
+from .models import Section, Category, SectionCategory, Product, ProductExtraInfo, ProductOption
 from .mixins import MakeFirstAdminMixin
+
+
+class SectionCategoryInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = SectionCategory
+    extra = 1
+    fields = ["category", "order"]
+    ordering = ["order"]
+    verbose_name = "Категория в разделе"
+    verbose_name_plural = "Категории в этом разделе (перетаскивайте или используйте стрелки для смены порядка)"
 
 
 class ProductExtraInfoInline(SortableInlineAdminMixin, admin.TabularInline):
@@ -29,21 +38,20 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     ordering = ["order"]
     list_editable = ["is_active"]
     prepopulated_fields = {"slug": ("name",)}
-    filter_horizontal = ["categories"]
     readonly_fields = ["image_preview", "created_at"]
+    inlines = [SectionCategoryInline]
+
+    class Media:
+        css = {
+            "all": ["admin/css/sortable_custom.css"]
+        }
+        js = ["admin/js/sortable_inline_arrows.js"]
 
     fieldsets = [
         (
             "Основная информация",
             {
                 "fields": ["name", "slug", "order", "is_active"],
-            },
-        ),
-        (
-            "Категории раздела",
-            {
-                "fields": ["categories"],
-                "description": "Выберите категории, входящие в этот раздел.",
             },
         ),
         (
