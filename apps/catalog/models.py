@@ -1,4 +1,21 @@
+import re
 from django.db import models
+
+
+def slugify_ru(text: str) -> str:
+    """Транслитерация кириллицы в slug (латиницу)."""
+    if not text:
+        return ""
+    ru_map = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo", "ж": "zh",
+        "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o",
+        "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f", "х": "kh", "ц": "ts",
+        "ч": "ch", "ш": "sh", "щ": "shch", "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu",
+        "я": "ya",
+    }
+    transliterated = "".join(ru_map.get(char, char) for char in text.lower())
+    cleaned = re.sub(r"[^a-z0-9]+", "-", transliterated)
+    return cleaned.strip("-")
 
 
 class Section(models.Model):
@@ -9,8 +26,9 @@ class Section(models.Model):
     slug = models.SlugField(
         max_length=100,
         unique=True,
+        blank=True,
         verbose_name="Идентификатор (slug)",
-        help_text="Используется как фильтр раздела (например: furshet, banquet)",
+        help_text="Используется как фильтр раздела (например: furshet, banquet). Если оставить пустым, сгенерируется из названия.",
     )
     name = models.CharField(max_length=200, verbose_name="Название")
     categories = models.ManyToManyField(
@@ -45,6 +63,17 @@ class Section(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            base_slug = slugify_ru(self.name) or "section"
+            slug = base_slug
+            counter = 1
+            while Section.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
     @property
     def effective_image_url(self):
         """Возвращает URL изображения: сначала загруженное, затем внешнее."""
@@ -69,8 +98,9 @@ class Category(models.Model):
     slug = models.SlugField(
         max_length=100,
         unique=True,
+        blank=True,
         verbose_name="Идентификатор (slug)",
-        help_text="Используется как фильтр в каталоге (например: profitable, desserts)",
+        help_text="Используется как фильтр в каталоге (например: profitable, desserts). Если оставить пустым, сгенерируется из названия.",
     )
     name = models.CharField(max_length=200, verbose_name="Название")
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
@@ -84,6 +114,17 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            base_slug = slugify_ru(self.name) or "category"
+            slug = base_slug
+            counter = 1
+            while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 
 class SectionCategory(models.Model):

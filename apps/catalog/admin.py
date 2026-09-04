@@ -45,7 +45,10 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
         css = {
             "all": ["admin/css/sortable_custom.css"]
         }
-        js = ["admin/js/sortable_inline_arrows.js"]
+        js = [
+            "admin/js/sortable_inline_arrows.js",
+            "admin/js/slug_auto_update.js",
+        ]
 
     fieldsets = [
         (
@@ -92,6 +95,14 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     ordering = ["order"]
     list_editable = ["is_active"]
     prepopulated_fields = {"slug": ("name",)}
+
+    class Media:
+        css = {
+            "all": ["admin/css/sortable_custom.css"]
+        }
+        js = [
+            "admin/js/slug_auto_update.js",
+        ]
 
     def get_sections(self, obj):
         sections = list(obj.sections.values_list("name", flat=True))

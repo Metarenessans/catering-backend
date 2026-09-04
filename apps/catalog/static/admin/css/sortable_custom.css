@@ -335,3 +335,51 @@
     animation: rowMovedFlash 0.5s ease-out !important;
 }
 
+/* --- Slug Auto Update & Refresh Button --- */
+.slug-input-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    max-width: 100% !important;
+    vertical-align: middle !important;
+}
+
+.slug-input-wrapper input {
+    margin: 0 !important;
+}
+
+.btn-refresh-slug {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    color: #475569 !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.btn-refresh-slug:hover {
+    background-color: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+@keyframes slugFlash {
+    0% { background-color: rgba(37, 99, 235, 0.18); border-color: #2563eb; }
+    100% { background-color: #ffffff; border-color: #ccc; }
+}
+
+.slug-updated-flash {
+    animation: slugFlash 0.6s ease-out !important;
+}
+
+
