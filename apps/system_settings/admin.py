@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django import forms
 from django.utils.safestring import mark_safe
 from django.urls import path, reverse
 from django.http import HttpResponseRedirect
@@ -9,20 +8,8 @@ from .models import SystemSettings
 from apps.catalog.revalidate import notify_frontend_revalidate
 
 
-class SystemSettingsForm(forms.ModelForm):
-    class Meta:
-        model = SystemSettings
-        fields = "__all__"
-        widgets = {
-            "email_host_password": forms.PasswordInput(render_value=True),
-            "revalidation_secret": forms.PasswordInput(render_value=True),
-            "telegram_bot_token": forms.PasswordInput(render_value=True),
-        }
-
-
 @admin.register(SystemSettings)
 class SystemSettingsAdmin(admin.ModelAdmin):
-    form = SystemSettingsForm
     list_display = ["__str__", "frontend_url", "email_host_user", "updated_at"]
     readonly_fields = ["cache_actions_display", "email_test_display", "updated_at"]
 
