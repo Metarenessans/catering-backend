@@ -188,3 +188,7 @@ EMAIL_USE_TLS = (_clean_email_var(os.getenv("EMAIL_USE_TLS")) or "False") == "Tr
 EMAIL_HOST_USER = _clean_email_var(os.getenv("EMAIL_HOST_USER")) or ""
 EMAIL_HOST_PASSWORD = _clean_email_var(os.getenv("EMAIL_HOST_PASSWORD")) or ""
 DEFAULT_FROM_EMAIL = _clean_email_var(os.getenv("DEFAULT_FROM_EMAIL")) or EMAIL_HOST_USER
+
+# ─── Frontend Revalidation (Next.js Cache Webhook) ───────────────────────────
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+REVALIDATION_SECRET = os.getenv("REVALIDATION_SECRET", "catering_schema_secret_key_2026")

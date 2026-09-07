@@ -29,15 +29,28 @@ def _get_contact_links_html(phone):
     return f"{wa_link}, {tg_link}"
 
 
+def _get_admin_base_url():
+    try:
+        from apps.system_settings.models import SystemSettings
+        return SystemSettings.load().get_site_url()
+    except Exception:
+        return os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
+
+
 def _send_to_email(subject, message, raise_exception=False):
     from .models import EmailSubscriber
+    from apps.system_settings.models import SystemSettings
+    from django.core.mail import get_connection
+
+    sys_settings = SystemSettings.load()
+    cfg = sys_settings.get_email_config()
 
     # Диагностика конфигурации почты
-    email_host = getattr(settings, 'EMAIL_HOST', None) or os.getenv('EMAIL_HOST')
-    email_user = getattr(settings, 'EMAIL_HOST_USER', None) or os.getenv('EMAIL_HOST_USER')
+    email_host = cfg["host"]
+    email_user = cfg["user"]
     if not email_host or not email_user:
         msg = (
-            "Email notification skipped: EMAIL_HOST or EMAIL_HOST_USER is not configured. "
+            "Email notification skipped: EMAIL_HOST or EMAIL_HOST_USER is not configured in settings or .env. "
             f"EMAIL_HOST={email_host!r}, EMAIL_HOST_USER={email_user!r}"
         )
         logger.error(msg)
@@ -82,14 +95,24 @@ def _send_to_email(subject, message, raise_exception=False):
     </html>
     """
 
-    from_email = os.getenv('DEFAULT_FROM_EMAIL', getattr(settings, 'DEFAULT_FROM_EMAIL', email_user))
+    from_email = cfg["from_email"]
 
     try:
+        connection = get_connection(
+            host=cfg["host"],
+            port=cfg["port"],
+            username=cfg["user"],
+            password=cfg["password"],
+            use_ssl=cfg["use_ssl"],
+            use_tls=cfg["use_tls"],
+            fail_silently=False,
+        )
         send_mail(
             subject=subject,
             message=message,  # Plain text fallback
             from_email=from_email,
             recipient_list=recipient_list,
+            connection=connection,
             fail_silently=False,
             html_message=html_message
         )
@@ -115,7 +138,7 @@ def _send_order_email_notification_bg(order_id):
         event_date_str = format_russian_date_and_days(order.event_date)
         cart_link = order.cart_link or "—"
 
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
+        admin_base_url = _get_admin_base_url()
         admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
 
         total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
@@ -170,7 +193,7 @@ def _send_menu_request_email_notification_bg(menu_request_id):
         else:
             food_prefs_str = " —"
 
-        admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
+        admin_base_url = _get_admin_base_url()
 
         # Дополнительные услуги (извлекаем по ID)
         services_str = "—"
@@ -257,7 +280,7 @@ def send_order_email_notification_sync(order_id, raise_exception=True):
     event_date_str = format_russian_date_and_days(order.event_date)
     cart_link = order.cart_link or "—"
 
-    admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
+    admin_base_url = _get_admin_base_url()
     admin_link = f"{admin_base_url}/admin/orders/order/{order.id}/change/"
 
     total_price = f"{int(order.total_price)} ₽" if order.total_price is not None else "—"
@@ -307,7 +330,7 @@ def send_menu_request_email_notification_sync(menu_request_id, raise_exception=T
     else:
         food_prefs_str = " —"
 
-    admin_base_url = os.getenv("ADMIN_BASE_URL", "https://chefmil-furshet.ru").rstrip("/")
+    admin_base_url = _get_admin_base_url()
 
     # Дополнительные услуги (извлекаем по ID)
     services_str = "—"

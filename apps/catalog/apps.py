@@ -8,6 +8,7 @@ class CatalogConfig(AppConfig):
 
     def ready(self):
         self._setup_admin_ordering()
+        import apps.catalog.signals  # noqa
 
     def _setup_admin_ordering(self):
         from django.contrib import admin

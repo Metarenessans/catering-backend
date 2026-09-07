@@ -17,6 +17,18 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
+# Скрываем неиспользуемый раздел "TOKEN BLACKLIST" из интерфейса админки
+try:
+    from rest_framework_simplejwt.token_blacklist.models import (
+        OutstandingToken,
+        BlacklistedToken,
+    )
+
+    admin.site.unregister(OutstandingToken)
+    admin.site.unregister(BlacklistedToken)
+except Exception:
+    pass
+
 urlpatterns = [
     # Admin
     path("admin/", admin.site.urls),

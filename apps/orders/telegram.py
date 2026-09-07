@@ -281,9 +281,14 @@ def send_menu_request_telegram_notification(menu_request):
 
 
 def _send_to_telegram(text):
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    try:
+        from apps.system_settings.models import SystemSettings
+        token = SystemSettings.load().get_telegram_bot_token()
+    except Exception:
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+
     if not token:
-        logger.warning("Telegram Bot configuration (TELEGRAM_BOT_TOKEN) is missing.")
+        logger.warning("Telegram Bot configuration (TELEGRAM_BOT_TOKEN) is missing in SystemSettings and .env.")
         return
         
     chat_ids = []
