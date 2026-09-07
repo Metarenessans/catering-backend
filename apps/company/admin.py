@@ -17,15 +17,41 @@ class CompanyInfoAdmin(admin.ModelAdmin):
 
     fieldsets = [
         (
-            "Основная информация",
+            "Основная информация и реквизиты",
             {
-                "fields": ["company_name", "address", "inn", "ogrn"],
+                "fields": [
+                    "company_name",
+                    "legal_name",
+                    "city",
+                    "address",
+                    "inn",
+                    "ogrn",
+                ],
+            },
+        ),
+        (
+            "Микроразметка Schema.org / Геолокация (SEO)",
+            {
+                "fields": [
+                    "latitude",
+                    "longitude",
+                    "price_range",
+                    "serves_cuisine",
+                ],
+                "description": "Поля для поисковой микроразметки (Яндекс / Google). Если оставить пустыми, они не будут выводиться в Schema.org.",
             },
         ),
         (
             "Контакты и ссылки",
             {
-                "fields": ["phone_number", "email", "telegram", "max_messenger", "reviews_url"],
+                "fields": [
+                    "phone_number",
+                    "email",
+                    "telegram",
+                    "max_messenger",
+                    "vk",
+                    "reviews_url",
+                ],
             },
         ),
         (

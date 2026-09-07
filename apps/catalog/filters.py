@@ -17,6 +17,11 @@ class ProductFilter(django_filters.FilterSet):
         lookup_expr="exact",
         label="Раздел (slug)",
     )
+    slug = django_filters.CharFilter(
+        field_name="slug",
+        lookup_expr="exact",
+        label="Слаг продукта (slug)",
+    )
     min_price = django_filters.NumberFilter(field_name="price", lookup_expr="gte")
     max_price = django_filters.NumberFilter(field_name="price", lookup_expr="lte")
     is_featured = django_filters.BooleanFilter()
@@ -24,4 +29,4 @@ class ProductFilter(django_filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = ["category", "section", "min_price", "max_price", "is_featured", "is_active"]
+        fields = ["slug", "category", "section", "min_price", "max_price", "is_featured", "is_active"]

@@ -74,6 +74,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "id",
+            "slug",
             "name",
             "category",
             "category_slug",
@@ -126,6 +127,7 @@ class ProductSerializer(serializers.ModelSerializer):
         # 3. Build response dictionary instantly
         return {
             "id": str(instance.id),
+            "slug": instance.slug or str(instance.id),
             "name": instance.name,
             "categoryId": instance.category.slug if instance.category_id else None,
             "imageUrl": url,
@@ -150,6 +152,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "id",
+            "slug",
             "name",
             "category",
             "image_url",

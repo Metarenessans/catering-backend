@@ -8,7 +8,51 @@ class CompanyInfo(models.Model):
     Соответствует интерфейсу CompanyInfo из frontend/src/mock-data.ts.
     """
     company_name = models.CharField(max_length=200, verbose_name="Название компании")
+    legal_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        verbose_name="Юридическое название",
+        help_text="Официальное юр. лицо (например: ИП или ООО). Если пусто, в разметке используется название компании.",
+    )
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        verbose_name="Город",
+        help_text="Город для Schema.org PostalAddress (addressLocality)",
+    )
     address = models.CharField(max_length=500, verbose_name="Адрес")
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name="Широта (latitude)",
+        help_text="Географическая широта для карт и Schema.org (например: 55.743821). Если не заполнено, geo-блок не выводится.",
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name="Долгота (longitude)",
+        help_text="Географическая долгота для карт и Schema.org (например: 52.408215). Если не заполнено, geo-блок не выводится.",
+    )
+    price_range = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        verbose_name="Ценовой диапазон",
+        help_text="Для Schema.org (например: ₽₽). Если пусто, не выводится.",
+    )
+    serves_cuisine = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+        verbose_name="Кухни / направления блюд",
+        help_text="Через запятую для Schema.org servesCuisine. Если пусто, не выводится.",
+    )
     inn = models.CharField(max_length=20, blank=True, default="", verbose_name="ИНН")
     ogrn = models.CharField(max_length=20, blank=True, default="", verbose_name="ОГРН")
     phone_number = models.CharField(max_length=30, verbose_name="Телефон")
@@ -16,6 +60,9 @@ class CompanyInfo(models.Model):
     telegram = models.URLField(max_length=300, blank=True, default="", verbose_name="Telegram")
     max_messenger = models.URLField(
         max_length=300, blank=True, default="", verbose_name="MAX мессенджер"
+    )
+    vk = models.URLField(
+        max_length=300, blank=True, default="", verbose_name="ВКонтакте"
     )
     reviews_url = models.URLField(
         max_length=1000,
@@ -79,14 +126,21 @@ class CompanyInfo(models.Model):
             pk=1,
             defaults={
                 "company_name": "Шеф Мил",
-                "address": "423800, Набережные Челны, ул. Абрикосовая, 10",
-                "inn": "1234567890",
-                "ogrn": "1234567890123",
-                "phone_number": "79274661333",
-                "email": "chef-meal@mail.ru",
-                "telegram": "https://t.me/Lyud_MILKA9",
-                "max_messenger": "https://max.me/Lyud_MILKA9",
-                "reviews_url": "https://www.avito.ru/user/6df047abcc3b2820419afccd9491017e/profile/all/predlozheniya_uslug?src=sharing&sellerId=6df047abcc3b2820419afccd9491017e",
+                "legal_name": "",
+                "city": "",
+                "address": "",
+                "latitude": None,
+                "longitude": None,
+                "price_range": "",
+                "serves_cuisine": "",
+                "inn": "",
+                "ogrn": "",
+                "phone_number": "",
+                "email": "",
+                "telegram": "",
+                "max_messenger": "",
+                "vk": "",
+                "reviews_url": "",
             },
         )
         return obj

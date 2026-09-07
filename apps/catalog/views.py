@@ -113,6 +113,23 @@ class ProductViewSet(viewsets.ModelViewSet):
             return qs
         return qs.filter(is_active=True).filter(Q(category__is_active=True) | Q(category__isnull=True))
 
+    lookup_value_regex = "[^/]+"
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        val = self.kwargs.get(lookup_url_kwarg)
+        if val is not None:
+            if str(val).isdigit():
+                obj = queryset.filter(id=int(val)).first()
+            else:
+                obj = queryset.filter(slug=val).first()
+            if obj:
+                self.check_object_permissions(self.request, obj)
+                return obj
+        from rest_framework.exceptions import NotFound
+        raise NotFound("Product not found")
+
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return ProductWriteSerializer

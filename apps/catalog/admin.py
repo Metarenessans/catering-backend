@@ -118,6 +118,7 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_display = [
         "order",
         "name",
+        "slug",
         "category",
         "price",
         "image_preview",
@@ -126,15 +127,13 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
         "created_at",
     ]
     list_filter = ["category", "is_active", "is_featured"]
-    search_fields = ["name", "description"]
+    search_fields = ["name", "slug", "description"]
     ordering = ["order"]
     list_editable = ["price", "is_active", "is_featured"]
     autocomplete_fields = ["category"]
+    prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
-
-
-
 
     def image_preview(self, obj):
         url = obj.effective_image_url
@@ -147,7 +146,7 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
         (
             "Основная информация",
             {
-                "fields": ["name", "category", "description", "order"],
+                "fields": ["name", "slug", "category", "description", "order"],
             },
         ),
         (

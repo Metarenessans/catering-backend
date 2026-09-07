@@ -202,6 +202,14 @@ class Product(models.Model):
         related_name="products",
         verbose_name="Категория",
     )
+    slug = models.SlugField(
+        max_length=300,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Идентификатор (slug)",
+        help_text="Используется в URL карточки товара. Если оставить пустым, сгенерируется из названия.",
+    )
     name = models.CharField(max_length=300, verbose_name="Название")
     image_url = models.URLField(
         max_length=500,
@@ -252,6 +260,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            base_slug = slugify_ru(self.name)[:280] or "product"
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     @property
     def effective_image_url(self):
