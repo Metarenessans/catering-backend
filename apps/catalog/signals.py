@@ -1,7 +1,20 @@
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 from .models import Product, Section, Category
 from .revalidate import notify_frontend_revalidate
+from .image_utils import optimize_image_to_webp
+
+
+@receiver(pre_save, sender=Product)
+def product_before_save(sender, instance, **kwargs):
+    if instance.image:
+        optimize_image_to_webp(instance.image, max_size=1600, quality=82)
+
+
+@receiver(pre_save, sender=Section)
+def section_before_save(sender, instance, **kwargs):
+    if instance.image:
+        optimize_image_to_webp(instance.image, max_size=1600, quality=82)
 
 
 @receiver(post_save, sender=Product)
@@ -22,3 +35,4 @@ def section_changed(sender, instance, **kwargs):
 @receiver(post_delete, sender=Category)
 def category_changed(sender, instance, **kwargs):
     notify_frontend_revalidate("category", instance.slug)
+

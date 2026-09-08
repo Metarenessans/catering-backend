@@ -116,8 +116,15 @@ class CompanyInfo(models.Model):
         return self.company_name
 
     def save(self, *args, **kwargs):
-        """Обеспечивает только одну запись (singleton pattern)."""
+        """Обеспечивает только одну запись (singleton pattern) и оптимизацию изображений в WebP."""
         self.pk = 1
+        from ..catalog.image_utils import optimize_image_to_webp
+        if self.hero_image_top:
+            optimize_image_to_webp(self.hero_image_top, max_size=1920, quality=82)
+        if self.hero_image_top_mobile:
+            optimize_image_to_webp(self.hero_image_top_mobile, max_size=1200, quality=82)
+        if self.hero_image_bottom:
+            optimize_image_to_webp(self.hero_image_bottom, max_size=1920, quality=82)
         super().save(*args, **kwargs)
 
     @classmethod
