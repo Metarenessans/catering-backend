@@ -40,6 +40,7 @@ urlpatterns = [
     path("api/v1/faq/", include("apps.faq.urls")),
     path("api/v1/company/", include("apps.company.urls")),
     path("api/v1/system-settings/", include("apps.system_settings.urls")),
+    path("api/v1/blog/", include("apps.blog.urls")),
 
     # JWT Auth
     path("api/v1/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

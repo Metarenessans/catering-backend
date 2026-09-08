@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.faq",
     "apps.company",
     "apps.system_settings",
+    "apps.blog",
 ]
 
 # ─── Middleware ───────────────────────────────────────────────────────────────
