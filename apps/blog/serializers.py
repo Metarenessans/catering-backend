@@ -32,6 +32,8 @@ class SimpleBlogArticleSerializer(serializers.ModelSerializer):
             "cover_source_link",
             "created_date",
             "created_at",
+            "seo_title",
+            "seo_description",
         )
 
 
