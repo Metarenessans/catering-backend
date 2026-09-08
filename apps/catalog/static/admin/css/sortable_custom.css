@@ -352,30 +352,33 @@
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 32px !important;
-    height: 32px !important;
+    width: 35px !important;
+    height: 35px !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-size: 15px !important;
-    line-height: 1 !important;
-    background: #f1f5f9 !important;
-    border: 1px solid #cbd5e1 !important;
+    background: #25282c !important;
+    border: 1px solid #41454c !important;
     border-radius: 6px !important;
     cursor: pointer !important;
-    color: #475569 !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    color: #e2e8f0 !important;
+    transition: all 0.15s ease !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    flex-shrink: 0 !important;
 }
 
 .btn-refresh-slug:hover {
-    background-color: #2563eb !important;
-    border-color: #2563eb !important;
+    background-color: #1e3a8a !important;
+    border-color: #3b82f6 !important;
     color: #ffffff !important;
 }
 
+.btn-refresh-slug:active {
+    background-color: #2563eb !important;
+}
+
 @keyframes slugFlash {
-    0% { background-color: rgba(37, 99, 235, 0.18); border-color: #2563eb; }
-    100% { background-color: #ffffff; border-color: #ccc; }
+    0% { background-color: rgba(59, 130, 246, 0.4); border-color: #3b82f6; color: #93c5fd; }
+    100% { background-color: #25282c; border-color: #41454c; color: #e2e8f0; }
 }
 
 .slug-updated-flash {

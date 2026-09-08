@@ -37,17 +37,16 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     search_fields = ["name", "slug"]
     ordering = ["order"]
     list_editable = ["is_active"]
-    prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ["image_preview", "created_at"]
     inlines = [SectionCategoryInline]
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css"]
+            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
         }
         js = [
             "admin/js/sortable_inline_arrows.js",
-            "admin/js/slug_auto_update.js",
+            "admin/js/slug_auto_update.js?v=2026_icon",
         ]
 
     fieldsets = [
@@ -94,14 +93,13 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     search_fields = ["name", "slug"]
     ordering = ["order"]
     list_editable = ["is_active"]
-    prepopulated_fields = {"slug": ("name",)}
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css"]
+            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
         }
         js = [
-            "admin/js/slug_auto_update.js",
+            "admin/js/slug_auto_update.js?v=2026_icon",
         ]
 
     def get_sections(self, obj):
@@ -131,9 +129,16 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     ordering = ["order"]
     list_editable = ["price", "is_active", "is_featured"]
     autocomplete_fields = ["category"]
-    prepopulated_fields = {"slug": ("name",)}
     inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
+
+    class Media:
+        css = {
+            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
+        }
+        js = [
+            "admin/js/slug_auto_update.js?v=2026_icon",
+        ]
 
     def image_preview(self, obj):
         url = obj.effective_image_url
