@@ -173,3 +173,133 @@ class FooterNavigation(models.Model):
 
     def __str__(self):
         return self.category.name if self.category else f"FooterNav #{self.id}"
+
+
+class PrivacyPolicy(models.Model):
+    """
+    Политика конфиденциальности сервиса (Singleton).
+    Позволяет загрузить файл документа (.docx, .pdf, .md, .html, .txt),
+    который автоматически преобразуется в чистый семантический HTML
+    для нативного отображения на сайте.
+    """
+    title = models.CharField(
+        max_length=255,
+        default="Политика конфиденциальности",
+        verbose_name="Заголовок страницы",
+        help_text="Отображается в заголовке H1 и хлебных крошках страницы.",
+    )
+    file = models.FileField(
+        upload_to="documents/",
+        blank=True,
+        null=True,
+        verbose_name="Файл документа (.docx, .pdf, .md, .html, .txt)",
+        help_text="Загрузите файл документа. При сохранении его содержимое автоматически конвертируется в HTML для отображения на сайте.",
+    )
+    content_html = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="HTML-содержимое",
+        help_text="Сгенерированный HTML-код политики. Можно также редактировать напрямую вручную.",
+    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    class Meta:
+        verbose_name = "Политика конфиденциальности"
+        verbose_name_plural = "Политика конфиденциальности"
+
+    def __str__(self):
+        return self.title or "Политика конфиденциальности"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        if self.file and not self.content_html:
+            try:
+                from .doc_converter import convert_document_to_html
+                self.content_html = convert_document_to_html(self.file)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(
+            pk=1,
+            defaults={
+                "title": "Политика конфиденциальности",
+                "content_html": "",
+            },
+        )
+        return obj
+
+
+class LegalDocument(models.Model):
+    """
+    Правовой документ компании (Политика конфиденциальности, Пользовательское соглашение, Публичная оферта).
+    Позволяет загрузить файл документа (.docx, .pdf, .md, .html, .txt),
+    который автоматически преобразуется в чистый семантический HTML
+    для нативного отображения на сайте.
+    """
+    DOCUMENT_CHOICES = [
+        ("privacy-policy", "Политика конфиденциальности"),
+        ("user-agreement", "Пользовательское соглашение"),
+        ("public-offer", "Публичная оферта"),
+    ]
+
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        verbose_name="Тип / URL (slug)",
+        help_text="Определяет адрес страницы на сайте (например: privacy-policy, user-agreement, public-offer)",
+    )
+    title = models.CharField(
+        max_length=255,
+        verbose_name="Заголовок страницы",
+        help_text="Отображается в заголовке H1 и хлебных крошках страницы.",
+    )
+    file = models.FileField(
+        upload_to="documents/",
+        blank=True,
+        null=True,
+        verbose_name="Файл документа (.docx, .pdf, .md, .html, .txt)",
+        help_text="Загрузите файл документа. При сохранении его содержимое автоматически конвертируется в HTML для отображения на сайте.",
+    )
+    content_html = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="HTML-содержимое",
+        help_text="Сгенерированный HTML-код документа. Можно также редактировать напрямую вручную.",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    class Meta:
+        verbose_name = "Правовой документ"
+        verbose_name_plural = "Правовые документы"
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return self.title or self.slug
+
+    def save(self, *args, **kwargs):
+        if self.file and not self.content_html:
+            try:
+                from .doc_converter import convert_document_to_html
+                self.content_html = convert_document_to_html(self.file)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_document(cls, slug: str):
+        title_map = dict(cls.DOCUMENT_CHOICES)
+        default_title = title_map.get(slug, slug.replace("-", " ").capitalize())
+        doc, _ = cls.objects.get_or_create(
+            slug=slug,
+            defaults={
+                "title": default_title,
+                "content_html": "",
+            },
+        )
+        return doc
+
+

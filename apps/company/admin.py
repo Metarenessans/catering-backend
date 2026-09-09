@@ -1,7 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin
-from .models import CompanyInfo
+from .models import CompanyInfo, LegalDocument, PrivacyPolicy
 from ..catalog.mixins import MakeFirstAdminMixin
 
 
@@ -106,6 +106,126 @@ class CompanyInfoAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         """Запрещаем удаление singleton-записи."""
         return False
+
+
+@admin.register(LegalDocument)
+class LegalDocumentAdmin(admin.ModelAdmin):
+    list_display = ["title", "slug", "has_file", "updated_at", "view_on_site_link"]
+    list_display_links = ["title"]
+    readonly_fields = ["updated_at", "html_preview", "live_page_link"]
+    search_fields = ["title", "slug"]
+
+    fieldsets = [
+        (
+            "Основная информация",
+            {
+                "fields": ["title", "slug", "live_page_link"],
+            },
+        ),
+        (
+            "Загрузка документа (автоматическая конвертация в HTML)",
+            {
+                "fields": ["file"],
+                "description": (
+                    "<b>Загрузите файл документа</b> (.docx, .pdf, .md, .html, .txt).<br>"
+                    "При сохранении файл будет автоматически сконвертирован в семантический HTML-код "
+                    "и подставлен в поле ниже.<br>"
+                    "<i>Рекомендуется формат Microsoft Word (.docx) для наилучшей разметки заголовков и списков.</i>"
+                ),
+            },
+        ),
+        (
+            "HTML-содержимое",
+            {
+                "fields": ["content_html"],
+                "description": (
+                    "Сгенерированный HTML-код документа. Вы также можете отредактировать его напрямую "
+                    "или вставить собственный код."
+                ),
+            },
+        ),
+        (
+            "Визуальный предпросмотр",
+            {
+                "fields": ["html_preview"],
+            },
+        ),
+        (
+            "Служебная информация",
+            {
+                "fields": ["order", "updated_at"],
+            },
+        ),
+    ]
+
+    def has_file(self, obj):
+        return bool(obj.file)
+    has_file.boolean = True
+    has_file.short_description = "Файл загружен"
+
+    def html_preview(self, obj):
+        if not obj.content_html:
+            return mark_safe("<em>HTML-содержимое пока пустое. Загрузите файл выше или введите HTML.</em>")
+        return mark_safe(
+            '<div style="max-height: 450px; overflow-y: auto; padding: 20px; '
+            'background: #181818; color: #f0f0f0; border: 1px solid #333; '
+            'border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; '
+            'line-height: 1.7; font-size: 14px;">'
+            f'{obj.content_html}'
+            '</div>'
+        )
+    html_preview.short_description = "Визуальный предпросмотр"
+
+    def live_page_link(self, obj):
+        if not obj.slug:
+            return "-"
+        from apps.system_settings.models import SystemSettings
+        frontend_url = SystemSettings.load().get_frontend_url()
+        return mark_safe(
+            f'<a href="{frontend_url}/{obj.slug}" target="_blank" '
+            f'style="display: inline-block; padding: 6px 14px; background: #db4900; '
+            f'color: #fff; text-decoration: none; border-radius: 4px; font-weight: 500;">'
+            f'Открыть на сайте (/{obj.slug}) ↗'
+            f'</a>'
+        )
+    live_page_link.short_description = "Просмотр на сайте"
+
+    def view_on_site_link(self, obj):
+        if not obj.slug:
+            return "-"
+        from apps.system_settings.models import SystemSettings
+        frontend_url = SystemSettings.load().get_frontend_url()
+        return mark_safe(
+            f'<a href="{frontend_url}/{obj.slug}" target="_blank" style="color: #db4900; font-weight: 500;">'
+            f'На сайте ↗</a>'
+        )
+    view_on_site_link.short_description = "Ссылка"
+
+    def save_model(self, request, obj, form, change):
+        if "file" in form.changed_data and form.cleaned_data.get("file"):
+            uploaded_file = form.cleaned_data["file"]
+            try:
+                from .doc_converter import convert_document_to_html
+                converted_html = convert_document_to_html(uploaded_file)
+                if converted_html:
+                    obj.content_html = converted_html
+                    messages.success(
+                        request,
+                        f"Файл «{uploaded_file.name}» успешно сконвертирован в HTML!"
+                    )
+                else:
+                    messages.warning(
+                        request,
+                        f"Файл «{uploaded_file.name}» обработан, но содержимое пустое."
+                    )
+            except Exception as e:
+                messages.error(
+                    request,
+                    f"Ошибка при конвертации файла «{uploaded_file.name}»: {e}"
+                )
+        super().save_model(request, obj, form, change)
+
+
 
 
 

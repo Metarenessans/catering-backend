@@ -12,3 +12,7 @@ django-admin-sortable2==2.3.1
 requests==2.32.3
 python-socks[asyncio]==2.8.1
 PySocks==1.7.1
+mammoth==1.12.1
+markdown==3.10.3
+beautifulsoup4==4.15.0
+pypdf==6.18.0

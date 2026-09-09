@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CompanyInfo, FooterNavigation
+from .models import CompanyInfo, FooterNavigation, LegalDocument, PrivacyPolicy
 
 
 class CompanyInfoSerializer(serializers.ModelSerializer):
@@ -43,3 +43,19 @@ class FooterNavigationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FooterNavigation
         fields = ["id", "name", "category_slug", "order"]
+
+
+class PrivacyPolicySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivacyPolicy
+        fields = ["id", "title", "content_html", "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
+class LegalDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegalDocument
+        fields = ["id", "slug", "title", "content_html", "order", "updated_at"]
+        read_only_fields = ["id", "updated_at"]
+
+
