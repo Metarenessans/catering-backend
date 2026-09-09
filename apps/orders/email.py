@@ -367,6 +367,9 @@ def send_menu_request_email_notification_sync(menu_request_id, raise_exception=T
 
     admin_line = f'Заявка в админке: <a href="{admin_link}">открыть</a>'
 
+    budget = menu_request.budget or "—"
+    budget_line = f"Примерный бюджет: {budget}\n" if budget != "—" else ""
+
     message = (
         f"<b>- Подбор меню -</b>\n\n"
         f"Имя: {name}\n"
@@ -374,6 +377,7 @@ def send_menu_request_email_notification_sync(menu_request_id, raise_exception=T
         f"Способ связи: {contact_method}\n"
         f"Формат мероприятия: {event_format}\n"
         f"Количество гостей: {guests_formatted}\n"
+        f"{budget_line}"
         f"К дате: {event_date_str}\n"
         f"Виды блюд: {food_prefs_str}\n"
         f"Доп. услуги: {services_str}\n\n"

@@ -242,6 +242,9 @@ def _send_menu_request_notification_bg(menu_request_id):
         phone_formatted = f"<code>{phone}</code>" if phone != "—" else "—"
         guests_formatted = f"<code>{guests}</code>" if guests != "—" else "—"
         
+        budget = menu_request.budget or "—"
+        budget_line = f"Примерный бюджет: {budget}\n" if budget != "—" else ""
+        
         admin_line = f"Заявка в админке: <a href=\"{admin_link}\">открыть</a>"
         
         message = (
@@ -251,6 +254,7 @@ def _send_menu_request_notification_bg(menu_request_id):
             f"Способ связи: {contact_method}\n"
             f"Формат мероприятия: {event_format}\n"
             f"Количество гостей: {guests_formatted}\n"
+            f"{budget_line}"
             f"К дате: {event_date_str}\n"
             f"Виды блюд: {food_prefs_str}\n"
             f"Доп. услуги: {services_str}\n\n"

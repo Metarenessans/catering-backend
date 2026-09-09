@@ -18,6 +18,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
         "contact_method",
         "format",
         "guests",
+        "budget",
         "date",
         "status",
         "created_at",
@@ -40,7 +41,7 @@ class MenuRequestAdmin(admin.ModelAdmin):
         (
             "Данные мероприятия",
             {
-                "fields": ["format", "guests", "date", "food_preferences"],
+                "fields": ["format", "guests", "budget", "date", "food_preferences"],
             },
         ),
         (

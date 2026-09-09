@@ -39,6 +39,7 @@ class MenuRequestSerializer(serializers.ModelSerializer):
             "id",
             "format",
             "guests",
+            "budget",
             "date",
             "food_preferences",
             "additional_services",
@@ -61,6 +62,7 @@ class MenuRequestCreateSerializer(serializers.Serializer):
     """
     format = serializers.CharField(max_length=100)
     guests = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    budget = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
     date = serializers.DateField(required=False, allow_null=True)
     additional = serializers.ListField(
         child=serializers.CharField(),
