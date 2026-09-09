@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from adminsortable2.admin import SortableAdminMixin
-from .models import CompanyInfo, FooterNavigation
+from .models import CompanyInfo
 from ..catalog.mixins import MakeFirstAdminMixin
 
 
@@ -108,10 +108,6 @@ class CompanyInfoAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(FooterNavigation)
-class FooterNavigationAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
-    list_display = ["order", "category"]
-    list_filter = ["category"]
-    ordering = ["order"]
+
 
 
