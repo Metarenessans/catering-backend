@@ -51,6 +51,8 @@ class CompanyInfoAdmin(admin.ModelAdmin):
                     "max_messenger",
                     "vk",
                     "reviews_url",
+                    "rkn_registry_url",
+                    "rkn_registry_number",
                 ],
             },
         ),

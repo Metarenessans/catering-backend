@@ -24,6 +24,8 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             "max_messenger",
             "vk",
             "reviews_url",
+            "rkn_registry_url",
+            "rkn_registry_number",
             "min_order_amount",
             "free_delivery_threshold",
             "delivery_cost",

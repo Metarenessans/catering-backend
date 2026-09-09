@@ -70,6 +70,20 @@ class CompanyInfo(models.Model):
         default="",
         verbose_name="Ссылка на отзывы (Авито)",
     )
+    rkn_registry_url = models.URLField(
+        max_length=1000,
+        blank=True,
+        default="",
+        verbose_name="Реестр операторов Роскомнадзора (ссылка)",
+        help_text="Ссылка на запись в реестре РКН (например: https://pd.rkn.gov.ru/operators-registry/operators-list/?id=16-25-059794)",
+    )
+    rkn_registry_number = models.CharField(
+        max_length=100,
+        blank=True,
+        default="",
+        verbose_name="Номер в реестре РКН",
+        help_text="Определяется автоматически из ссылки (например: 16-25-059794), либо можно указать вручную.",
+    )
     min_order_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -115,9 +129,34 @@ class CompanyInfo(models.Model):
     def __str__(self):
         return self.company_name
 
+    def extract_rkn_number(self) -> str:
+        """Автоматически извлекает номер оператора из ссылки реестра РКН."""
+        if self.rkn_registry_number:
+            return self.rkn_registry_number
+        if not self.rkn_registry_url:
+            return ""
+        import urllib.parse
+        import re
+        try:
+            parsed = urllib.parse.urlparse(self.rkn_registry_url)
+            params = urllib.parse.parse_qs(parsed.query)
+            if "id" in params and params["id"]:
+                return params["id"][0].strip()
+        except Exception:
+            pass
+        match = re.search(r'(\d{2}-\d{2}-\d+)', self.rkn_registry_url)
+        if match:
+            return match.group(1)
+        match = re.search(r'[?&]id=([^&#]+)', self.rkn_registry_url)
+        if match:
+            return match.group(1)
+        return ""
+
     def save(self, *args, **kwargs):
         """Обеспечивает только одну запись (singleton pattern) и оптимизацию изображений в WebP."""
         self.pk = 1
+        if self.rkn_registry_url and not self.rkn_registry_number:
+            self.rkn_registry_number = self.extract_rkn_number()
         from ..catalog.image_utils import optimize_image_to_webp
         if self.hero_image_top:
             optimize_image_to_webp(self.hero_image_top, max_size=1920, quality=82)
