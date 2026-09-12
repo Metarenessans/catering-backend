@@ -13,6 +13,11 @@ class SystemSettings(models.Model):
         verbose_name="Кэширование sitemap (мин)",
         help_text="0 — генерация на лету (force-dynamic). Значение > 0 (например, 30 или 60) — кэширование на указанное количество минут.",
     )
+    enable_debug_json_file = models.BooleanField(
+        default=False,
+        verbose_name="Генерация JSON файла микроразметки для деф-режима",
+        help_text="При включении создает и обновляет файл schema_markup_debug.json в корне проекта при переходе по страницам. По умолчанию выключено для исключения лишней нагрузки на диск.",
+    )
 
     # 2. Связь с фронтендом (Next.js Revalidation Webhook)
     frontend_url = models.CharField(

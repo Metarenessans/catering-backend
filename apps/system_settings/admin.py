@@ -65,7 +65,7 @@ class SystemSettingsAdmin(admin.ModelAdmin):
         (
             "SEO и карта сайта (Sitemap)",
             {
-                "fields": ["sitemap_cache_minutes"],
+                "fields": ["sitemap_cache_minutes", "enable_debug_json_file"],
                 "description": (
                     "Управление временем жизни кэша для <code>/sitemap.xml</code>.<br>"
                     "<b>0</b> — генерация на лету (force-dynamic): каждое обращение запрашивает свежие данные.<br>"
