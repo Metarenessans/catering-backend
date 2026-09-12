@@ -5,6 +5,35 @@ from .models import Section, Category, SectionCategory, Product, ProductExtraInf
 from .mixins import MakeFirstAdminMixin
 
 
+class CategoryProductInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = Product
+    extra = 0
+    fields = [
+        "order",
+        "image_preview",
+        "name",
+        "price",
+        "is_active",
+        "is_featured",
+    ]
+    readonly_fields = ["image_preview"]
+    ordering = ["order"]
+    verbose_name = "Товар в категории"
+    verbose_name_plural = "Товары в этой категории (перетаскивайте или используйте стрелки для смены порядка)"
+    show_change_link = True
+
+    def image_preview(self, obj):
+        if obj and obj.pk:
+            url = obj.effective_image_url
+            if url:
+                return mark_safe(
+                    f'<img src="{url}" width="42" height="42" style="object-fit: cover; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" />'
+                )
+        return "—"
+
+    image_preview.short_description = "Фото"
+
+
 class SectionCategoryInline(SortableInlineAdminMixin, admin.TabularInline):
     model = SectionCategory
     extra = 1
@@ -88,11 +117,12 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
-    list_display = ["order", "name", "get_sections", "slug", "is_active"]
+    list_display = ["order", "name", "get_sections", "get_products_count", "slug", "is_active"]
     list_filter = ["sections", "is_active"]
     search_fields = ["name", "slug"]
     ordering = ["order"]
     list_editable = ["is_active"]
+    inlines = [CategoryProductInline]
 
     class Media:
         css = {
@@ -108,6 +138,11 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
         return ", ".join(sections) if sections else "—"
 
     get_sections.short_description = "Разделы"
+
+    def get_products_count(self, obj):
+        return obj.products.count()
+
+    get_products_count.short_description = "Товаров"
 
 
 
