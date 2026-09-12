@@ -103,3 +103,18 @@ class EventFormatViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
         return [permissions.IsAdminUser()]
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from .models import CalculatePageSettings
+from .serializers import CalculatePageSettingsSerializer
+
+
+class CalculatePageSettingsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        settings = CalculatePageSettings.load()
+        serializer = CalculatePageSettingsSerializer(settings)
+        return Response(serializer.data)

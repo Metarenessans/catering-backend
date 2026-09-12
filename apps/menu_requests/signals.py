@@ -45,3 +45,35 @@ def _safe_send_email(instance):
         send_menu_request_email_notification(instance)
     except Exception as e:
         logger.error(f"Failed to trigger Email notification for menu request {instance.id}: {e}")
+
+from django.db.models.signals import post_delete
+from .models import CalculatePageSettings, CalculateFAQ
+from ..catalog.revalidate import notify_frontend_revalidate
+
+
+from .models import (
+    CalculateFeature,
+    CalculateBudgetOption,
+    CalculateFoodOption,
+    CalculateStep,
+    AdditionalService,
+)
+
+CALCULATE_MODELS = (
+    CalculatePageSettings,
+    CalculateFeature,
+    CalculateBudgetOption,
+    CalculateFoodOption,
+    CalculateStep,
+    CalculateFAQ,
+    AdditionalService,
+)
+
+for model_cls in CALCULATE_MODELS:
+    @receiver(post_save, sender=model_cls)
+    def calculate_model_post_save(sender, instance, **kwargs):
+        notify_frontend_revalidate("calculate", "")
+
+    @receiver(post_delete, sender=model_cls)
+    def calculate_model_post_delete(sender, instance, **kwargs):
+        notify_frontend_revalidate("calculate", "")

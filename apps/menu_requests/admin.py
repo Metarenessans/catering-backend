@@ -3,8 +3,20 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from adminsortable2.admin import SortableAdminMixin
-from .models import MenuRequest, AdditionalService, EventFormat
+from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin, SortableAdminBase
+from django.forms import Textarea, TextInput
+from django.db import models
+from .models import (
+    MenuRequest,
+    AdditionalService,
+    EventFormat,
+    CalculatePageSettings,
+    CalculateFeature,
+    CalculateBudgetOption,
+    CalculateFoodOption,
+    CalculateStep,
+    CalculateFAQ,
+)
 from ..catalog.mixins import MakeFirstAdminMixin
 from ..orders.telegram import send_menu_request_telegram_notification
 
@@ -169,16 +181,6 @@ class MenuRequestAdmin(admin.ModelAdmin):
     additional_services_display.short_description = "Дополнительные услуги"
 
 
-@admin.register(AdditionalService)
-class AdditionalServiceAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
-    list_display = ["order", "label", "linked_product", "is_active"]
-    list_editable = ["is_active"]
-    search_fields = ["label"]
-    autocomplete_fields = ["linked_product"]
-    ordering = ["order"]
-
-
-
 @admin.register(EventFormat)
 class EventFormatAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     list_display = ["order", "name", "is_active"]
@@ -188,3 +190,142 @@ class EventFormatAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin
 
 
 
+
+
+class CalculateFeatureInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = CalculateFeature
+    extra = 0
+    fields = ["order", "icon", "title", "subtitle", "is_active"]
+    ordering = ["order"]
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"style": "width: 100%;"})},
+    }
+    verbose_name = "Преимущество"
+    verbose_name_plural = "1. Карточки преимуществ (под шапкой)"
+
+
+class CalculateBudgetOptionInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = CalculateBudgetOption
+    extra = 0
+    fields = ["order", "name", "is_active"]
+    ordering = ["order"]
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"style": "width: 100%; min-width: 250px;"})},
+    }
+    verbose_name = "Опция бюджета"
+    verbose_name_plural = "2. Опции примерного бюджета (в форме)"
+
+
+class CalculateFoodOptionInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = CalculateFoodOption
+    extra = 0
+    fields = ["order", "name", "is_active"]
+    ordering = ["order"]
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"style": "width: 100%; min-width: 200px;"})},
+    }
+    verbose_name = "Вид блюда"
+    verbose_name_plural = "3. Виды блюд (в форме)"
+
+
+class AdditionalServiceInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = AdditionalService
+    extra = 0
+    fields = ["order", "label", "description", "linked_product", "is_active"]
+    ordering = ["order"]
+    autocomplete_fields = ["linked_product"]
+    formfield_overrides = {
+        models.TextField: {"widget": Textarea(attrs={"rows": 2, "style": "width: 100%; min-width: 220px;"})},
+    }
+    verbose_name = "Дополнительная услуга"
+    verbose_name_plural = "4. Дополнительные услуги (в форме)"
+
+
+class CalculateStepInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = CalculateStep
+    extra = 0
+    fields = ["order", "step", "title", "text", "is_active"]
+    ordering = ["order"]
+    formfield_overrides = {
+        models.TextField: {"widget": Textarea(attrs={"rows": 2, "style": "width: 100%; min-width: 260px;"})},
+    }
+    verbose_name = "Шаг процесса"
+    verbose_name_plural = "5. Шаги процесса («Как мы работаем»)"
+
+
+class CalculateFAQInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = CalculateFAQ
+    extra = 0
+    fields = ["order", "question", "answer", "is_active"]
+    ordering = ["order"]
+    formfield_overrides = {
+        models.TextField: {"widget": Textarea(attrs={"rows": 3, "style": "width: 100%; min-width: 320px;"})},
+    }
+    verbose_name = "Вопрос FAQ"
+    verbose_name_plural = "6. Вопросы и ответы (FAQ)"
+
+
+@admin.register(CalculatePageSettings)
+class CalculatePageSettingsAdmin(SortableAdminBase, admin.ModelAdmin):
+    inlines = [
+        CalculateFeatureInline,
+        CalculateBudgetOptionInline,
+        CalculateFoodOptionInline,
+        AdditionalServiceInline,
+        CalculateStepInline,
+        CalculateFAQInline,
+    ]
+    readonly_fields = ["updated_at"]
+    fieldsets = [
+        (
+            "Хиро-секция (Шапка страницы расчёта)",
+            {
+                "fields": ["hero_badge", "hero_title", "hero_description"],
+            },
+        ),
+        (
+            "Секция «Как мы работаем» (Заголовки)",
+            {
+                "fields": ["steps_title", "steps_subtitle"],
+            },
+        ),
+        (
+            "Секция FAQ (Заголовки)",
+            {
+                "fields": ["faq_title", "faq_subtitle"],
+            },
+        ),
+        (
+            "SEO (Поисковая оптимизация страницы)",
+            {
+                "fields": ["seo_title", "seo_description"],
+            },
+        ),
+        (
+            "Служебная информация",
+            {
+                "fields": ["updated_at"],
+                "classes": ["collapse"],
+            },
+        ),
+    ]
+
+    class Media:
+        css = {
+            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
+        }
+        js = [
+            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
+        ]
+
+    def changelist_view(self, request, extra_context=None):
+        obj = CalculatePageSettings.load()
+        return HttpResponseRedirect(
+            reverse("admin:menu_requests_calculatepagesettings_change", args=[obj.pk])
+        )
+
+    def has_add_permission(self, request):
+        return not CalculatePageSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

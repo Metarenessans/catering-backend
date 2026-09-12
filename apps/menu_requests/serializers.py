@@ -1,5 +1,15 @@
 from rest_framework import serializers
-from .models import MenuRequest, AdditionalService, EventFormat
+from .models import (
+    MenuRequest,
+    AdditionalService,
+    EventFormat,
+    CalculatePageSettings,
+    CalculateFeature,
+    CalculateBudgetOption,
+    CalculateFoodOption,
+    CalculateStep,
+    CalculateFAQ,
+)
 from ..catalog.serializers import ProductSerializer
 
 import datetime
@@ -107,3 +117,77 @@ class MenuRequestStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuRequest
         fields = ["status", "notes"]
+
+
+class CalculateFeatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalculateFeature
+        fields = ["id", "icon", "title", "subtitle", "order"]
+
+
+class CalculateStepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalculateStep
+        fields = ["id", "step", "title", "text", "order"]
+
+
+class CalculateFAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CalculateFAQ
+        fields = ["id", "question", "answer", "order"]
+
+
+class CalculatePageSettingsSerializer(serializers.ModelSerializer):
+    features = serializers.SerializerMethodField()
+    budget_options = serializers.SerializerMethodField()
+    food_options = serializers.SerializerMethodField()
+    additional_services = serializers.SerializerMethodField()
+    steps = serializers.SerializerMethodField()
+    faqs = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CalculatePageSettings
+        fields = [
+            "hero_badge",
+            "hero_title",
+            "hero_description",
+            "features",
+            "budget_options",
+            "food_options",
+            "additional_services",
+            "steps_title",
+            "steps_subtitle",
+            "steps",
+            "faq_title",
+            "faq_subtitle",
+            "faqs",
+            "seo_title",
+            "seo_description",
+            "updated_at",
+        ]
+
+    def get_features(self, obj):
+        active = obj.features.filter(is_active=True).order_by("order")
+        return CalculateFeatureSerializer(active, many=True).data
+
+    def get_budget_options(self, obj):
+        active = obj.budget_options.filter(is_active=True).order_by("order")
+        return list(active.values_list("name", flat=True))
+
+    def get_food_options(self, obj):
+        active = obj.food_options.filter(is_active=True).order_by("order")
+        return list(active.values_list("name", flat=True))
+
+    def get_additional_services(self, obj):
+        from .models import AdditionalService
+        # Return services associated with settings, or active services
+        services = AdditionalService.objects.filter(is_active=True).order_by("order")
+        return AdditionalServiceSerializer(services, many=True).data
+
+    def get_steps(self, obj):
+        active = obj.steps.filter(is_active=True).order_by("order")
+        return CalculateStepSerializer(active, many=True).data
+
+    def get_faqs(self, obj):
+        active = obj.faqs.filter(is_active=True).order_by("order")
+        return CalculateFAQSerializer(active, many=True).data
