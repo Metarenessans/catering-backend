@@ -32,6 +32,7 @@ class CompanyInfoSerializer(serializers.ModelSerializer):
             "hero_image_top",
             "hero_image_top_mobile",
             "hero_image_bottom",
+            "og_image",
             "updated_at",
         ]
         read_only_fields = ["id", "updated_at"]

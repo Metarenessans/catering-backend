@@ -120,6 +120,13 @@ class CompanyInfo(models.Model):
         blank=True,
         verbose_name="Изображение для хиро-секции (нижнее)",
     )
+    og_image = models.ImageField(
+        upload_to="company/",
+        null=True,
+        blank=True,
+        verbose_name="Изображение для соцсетей (OG Image)",
+        help_text="Основное изображение Open Graph для отображения ссылки на сайт в Telegram, VK, WhatsApp и поисковиках. Рекомендуется соотношение 1.91:1 (например, 1200x630 px). Используется на всех страницах сайта, кроме карточек товаров и отдельных статей блога.",
+    )
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
     class Meta:
@@ -164,6 +171,8 @@ class CompanyInfo(models.Model):
             optimize_image_to_webp(self.hero_image_top_mobile, max_size=1200, quality=82)
         if self.hero_image_bottom:
             optimize_image_to_webp(self.hero_image_bottom, max_size=1920, quality=82)
+        if self.og_image:
+            optimize_image_to_webp(self.og_image, max_size=1200, quality=85)
         super().save(*args, **kwargs)
 
     @classmethod

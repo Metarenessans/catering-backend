@@ -13,6 +13,7 @@ class CompanyInfoAdmin(admin.ModelAdmin):
         "hero_image_top_preview",
         "hero_image_top_mobile_preview",
         "hero_image_bottom_preview",
+        "og_image_preview",
     ]
 
     fieldsets = [
@@ -76,6 +77,21 @@ class CompanyInfoAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "Изображение для соцсетей и мессенджеров (Open Graph)",
+            {
+                "fields": [
+                    "og_image",
+                    "og_image_preview",
+                ],
+                "description": (
+                    "<b>Основное изображение Open Graph (og:image)</b> для формирования красивого превью ссылки "
+                    "в Telegram, ВКонтакте, WhatsApp и сниппетах поисковиков.<br>"
+                    "Рекомендуется горизонтальное изображение с соотношением сторон <b>1.91:1 (1200×630 px)</b>.<br>"
+                    "<i>Отображается на всех страницах сайта, кроме карточек товаров и отдельных статей блога.</i>"
+                ),
+            },
+        ),
+        (
             "Служебная информация",
             {
                 "fields": ["updated_at"],
@@ -100,6 +116,12 @@ class CompanyInfoAdmin(admin.ModelAdmin):
             return mark_safe(f'<img src="{obj.hero_image_bottom.url}" width="150" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" />')
         return "Нет фото"
     hero_image_bottom_preview.short_description = "Предпросмотр нижнего изображения"
+
+    def og_image_preview(self, obj):
+        if obj.og_image:
+            return mark_safe(f'<img src="{obj.og_image.url}" width="240" style="border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1);" />')
+        return "Нет изображения"
+    og_image_preview.short_description = "Предпросмотр OG Image"
 
     def has_add_permission(self, request):
         """Разрешаем создание только если записи нет."""
