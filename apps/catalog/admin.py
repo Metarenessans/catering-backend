@@ -42,10 +42,10 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
+            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
         }
         js = [
-            "admin/js/sortable_inline_arrows.js",
+            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
             "admin/js/slug_auto_update.js?v=2026_icon",
         ]
 
@@ -96,9 +96,10 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
+            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
         }
         js = [
+            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
             "admin/js/slug_auto_update.js?v=2026_icon",
         ]
 
@@ -129,14 +130,22 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
     ordering = ["order"]
     list_editable = ["price", "is_active", "is_featured"]
     autocomplete_fields = ["category"]
+
+    def get_extra_model_filters(self, request):
+        filters = {}
+        category_id = request.GET.get("category__id__exact")
+        if category_id:
+            filters["category_id"] = category_id
+        return filters
     inlines = [ProductExtraInfoInline, ProductOptionInline]
     readonly_fields = ["image_preview", "created_at", "updated_at"]
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_icon"]
+            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
         }
         js = [
+            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
             "admin/js/slug_auto_update.js?v=2026_icon",
         ]
 
