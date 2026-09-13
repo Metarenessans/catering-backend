@@ -5,7 +5,7 @@ from .models import Section, Category, Product, ProductExtraInfo, ProductOption
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ["id", "slug", "name", "image", "image_url", "order", "is_active"]
+        fields = ["id", "slug", "name", "image", "image_url", "order", "is_active", "seo_title", "seo_description"]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -18,6 +18,10 @@ class SectionSerializer(serializers.ModelSerializer):
         # Standard format for frontend compatibility
         ret["id"] = ret.pop("slug", "")
         ret["imageUrl"] = url
+        ret["seoTitle"] = instance.seo_title or ""
+        ret["seoDescription"] = instance.seo_description or ""
+        ret["seo_title"] = instance.seo_title or ""
+        ret["seo_description"] = instance.seo_description or ""
         section_categories = (
             instance.section_categories.select_related("category")
             .filter(category__is_active=True)

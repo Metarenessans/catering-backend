@@ -53,6 +53,19 @@ class Section(models.Model):
     )
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок сортировки")
     is_active = models.BooleanField(default=True, verbose_name="Активен")
+    seo_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="SEO Заголовок (Title)",
+        help_text="Оставьте пустым для автогенерации (например: Фуршетные блюда и закуски — заказать с доставкой в Набережных Челнах)",
+    )
+    seo_description = models.TextField(
+        blank=True,
+        default="",
+        verbose_name="SEO Описание (Description)",
+        help_text="Оставьте пустым для автогенерации по формуле с перечислением категорий раздела",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
 
     class Meta:

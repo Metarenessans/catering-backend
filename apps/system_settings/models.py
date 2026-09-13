@@ -150,3 +150,56 @@ class SystemSettings(models.Model):
             "use_tls": use_tls,
             "from_email": from_email,
         }
+
+
+class SeoSettings(models.Model):
+    """
+    Глобальные настройки SEO (Singleton) для статических и ключевых страниц сайта.
+    """
+    # Главная страница (/)
+    home_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Шеф Мил Фуршет | Доставка фуршетов и кейтеринга в Набережных Челнах",
+        verbose_name="Title главной страницы (/)",
+        help_text="Заголовок главной страницы в браузере (рекомендуется 50–60 символов). Если пусто — используется системный шаблон.",
+    )
+    home_description = models.TextField(
+        blank=True,
+        default="Заказать кейтеринг, банкетные и фуршетные блюда с доставкой в Набережных Челнах. Вкусные закуски, брускетты, канапе и готовые наборы на любой праздник от Шеф Мил Фуршет.",
+        verbose_name="Description главной страницы (/)",
+        help_text="Мета-описание главной страницы для поисковиков (рекомендуется 140–160 символов).",
+    )
+
+    # Страница блога (/blog)
+    blog_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Блог о кейтеринге и фуршетах — статьи и советы | Шеф Мил Фуршет",
+        verbose_name="Title страницы блога (/blog)",
+        help_text="Заголовок страницы со списком статей блога (рекомендуется 50–60 символов).",
+    )
+    blog_description = models.TextField(
+        blank=True,
+        default="Советы шеф-повара по расчёту фуршета, сервировке стола, подбору гастробоксов и организации кейтеринга на праздник в Набережных Челнах. Читайте в блоге Шеф Мил!",
+        verbose_name="Description страницы блога (/blog)",
+        help_text="Мета-описание страницы блога для поисковиков (рекомендуется 140–160 символов).",
+    )
+
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+
+    class Meta:
+        verbose_name = "Настройки SEO"
+        verbose_name_plural = "Настройки SEO"
+
+    def __str__(self):
+        return "Настройки SEO"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

@@ -41,6 +41,13 @@ class ArticleProductInline(SortableTabularInline):
 
 @admin.register(BlogArticle)
 class BlogArticleAdmin(SortableAdminBase, admin.ModelAdmin):
+    class Media:
+        css = {
+            "all": ["admin/css/char_counter.css"]
+        }
+        js = [
+            "admin/js/char_counter.js"
+        ]
     list_display = ("title", "slug", "created_date", "is_published", "created_at")
     list_filter = ("is_published", "created_date")
     search_fields = ("title", "slug")

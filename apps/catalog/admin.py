@@ -71,11 +71,12 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
+            "all": ["admin/css/sortable_custom.css", "admin/css/char_counter.css"]
         }
         js = [
-            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
-            "admin/js/slug_auto_update.js?v=2026_icon",
+            "admin/js/sortable_inline_arrows.js",
+            "admin/js/slug_auto_update.js",
+            "admin/js/char_counter.js",
         ]
 
     fieldsets = [
@@ -83,6 +84,17 @@ class SectionAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
             "Основная информация",
             {
                 "fields": ["name", "slug", "order", "is_active"],
+            },
+        ),
+        (
+            "SEO",
+            {
+                "fields": ["seo_title", "seo_description"],
+                "description": (
+                    "Поисковая оптимизация раздела каталога.<br>"
+                    "Если оставить пустыми — теги формируются автоматически на основе названия и категорий раздела.<br>"
+                    "Оптимальный Title: 50–60 символов. Оптимальный Description: 140–160 символов."
+                ),
             },
         ),
         (
@@ -126,11 +138,12 @@ class CategoryAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
+            "all": ["admin/css/sortable_custom.css", "admin/css/char_counter.css"]
         }
         js = [
-            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
-            "admin/js/slug_auto_update.js?v=2026_icon",
+            "admin/js/sortable_inline_arrows.js",
+            "admin/js/slug_auto_update.js",
+            "admin/js/char_counter.js",
         ]
 
     def get_sections(self, obj):
@@ -177,11 +190,12 @@ class ProductAdmin(SortableAdminMixin, MakeFirstAdminMixin, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
+            "all": ["admin/css/sortable_custom.css", "admin/css/char_counter.css"]
         }
         js = [
-            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
-            "admin/js/slug_auto_update.js?v=2026_icon",
+            "admin/js/sortable_inline_arrows.js",
+            "admin/js/slug_auto_update.js",
+            "admin/js/char_counter.js",
         ]
 
     def image_preview(self, obj):

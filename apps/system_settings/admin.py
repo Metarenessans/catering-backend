@@ -4,7 +4,7 @@ from django.urls import path, reverse
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.core.mail import get_connection, send_mail
-from .models import SystemSettings
+from .models import SystemSettings, SeoSettings
 from apps.catalog.revalidate import notify_frontend_revalidate
 
 
@@ -205,3 +205,63 @@ class SystemSettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(SeoSettings)
+class SeoSettingsAdmin(admin.ModelAdmin):
+    readonly_fields = ["updated_at"]
+
+    class Media:
+        css = {
+            "all": ["admin/css/char_counter.css"]
+        }
+        js = [
+            "admin/js/char_counter.js"
+        ]
+
+    fieldsets = [
+        (
+            "Главная страница (/)",
+            {
+                "fields": ["home_title", "home_description"],
+                "description": (
+                    "Настройка мета-тегов Title и Description для главной страницы сайта.<br>"
+                    "Оптимальный Title: 50–60 символов. Оптимальный Description: 140–160 символов."
+                ),
+            },
+        ),
+        (
+            "Страница блога (/blog)",
+            {
+                "fields": ["blog_title", "blog_description"],
+                "description": (
+                    "Настройка мета-тегов Title и Description для общего каталога статей блога <code>/blog</code>.<br>"
+                    "Для отдельных статей Title и Description настраиваются внутри каждой статьи блога."
+                ),
+            },
+        ),
+        (
+            "Служебная информация",
+            {
+                "fields": ["updated_at"],
+                "classes": ["collapse"],
+            },
+        ),
+    ]
+
+    def changelist_view(self, request, extra_context=None):
+        """Всегда открываем сразу форму редактирования единственной записи."""
+        obj = SeoSettings.load()
+        return HttpResponseRedirect(
+            reverse("admin:system_settings_seosettings_change", args=[obj.pk])
+        )
+
+    def has_add_permission(self, request):
+        return not SeoSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        notify_frontend_revalidate(event_type="seo")

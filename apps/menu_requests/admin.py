@@ -312,10 +312,10 @@ class CalculatePageSettingsAdmin(SortableAdminBase, admin.ModelAdmin):
 
     class Media:
         css = {
-            "all": ["admin/css/sortable_custom.css?v=2026_drag_v2"]
+            "all": ["admin/css/sortable_custom.css", "admin/css/char_counter.css"]
         }
         js = [
-            "admin/js/sortable_inline_arrows.js?v=2026_drag_v3",
+            "admin/js/sortable_inline_arrows.js", "admin/js/char_counter.js",
         ]
 
     def changelist_view(self, request, extra_context=None):

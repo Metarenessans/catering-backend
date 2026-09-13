@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
-from .models import SystemSettings
-from .serializers import SystemSettingsSerializer
+from .models import SystemSettings, SeoSettings
+from .serializers import SystemSettingsSerializer, SeoSettingsSerializer
 
 
 class SystemSettingsView(generics.RetrieveAPIView):
@@ -12,3 +12,14 @@ class SystemSettingsView(generics.RetrieveAPIView):
 
     def get_object(self):
         return SystemSettings.load()
+
+
+class SeoSettingsView(generics.RetrieveAPIView):
+    """
+    Возвращает настройки SEO (Singleton).
+    """
+    serializer_class = SeoSettingsSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_object(self):
+        return SeoSettings.load()

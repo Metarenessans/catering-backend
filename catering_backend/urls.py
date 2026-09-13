@@ -1,3 +1,4 @@
+from apps.system_settings.views import SeoSettingsView
 """
 URL configuration for catering_backend project.
 """
@@ -40,6 +41,8 @@ urlpatterns = [
     path("api/v1/faq/", include("apps.faq.urls")),
     path("api/v1/company/", include("apps.company.urls")),
     path("api/v1/system-settings/", include("apps.system_settings.urls")),
+    path("api/v1/seo-settings/", SeoSettingsView.as_view(), name="seo_settings"),
+    
     path("api/v1/blog/", include("apps.blog.urls")),
 
     # JWT Auth

@@ -1,0 +1,107 @@
+/* Character Counter Badge for Django Admin */
+.char-counter-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  padding: 5px 12px !important;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  border-radius: 6px !important;
+  width: fit-content !important;
+  transition: all 0.15s ease-in-out !important;
+  user-select: none !important;
+}
+
+.char-counter-badge .char-counter-icon {
+  font-size: 13px !important;
+}
+
+.char-counter-badge .char-counter-label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.char-counter-badge .char-counter-num {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin-left: 2px !important;
+}
+
+.char-counter-badge .char-counter-hint {
+  font-size: 12px !important;
+  opacity: 0.85 !important;
+}
+
+/* Light Theme */
+.char-counter-badge.char-counter-empty {
+  border: 1px solid #d0d7de !important;
+  background-color: #f6f8fa !important;
+  color: #24292f !important;
+}
+
+.char-counter-badge.char-counter-under {
+  border: 1px solid #54aeff !important;
+  background-color: #ddf4ff !important;
+  color: #0969da !important;
+}
+
+.char-counter-badge.char-counter-optimal {
+  border: 1px solid #2da44e !important;
+  background-color: #dafbe1 !important;
+  color: #1a7f37 !important;
+  font-weight: 600 !important;
+}
+
+.char-counter-badge.char-counter-warning {
+  border: 1px solid #d4a72c !important;
+  background-color: #fff8c5 !important;
+  color: #7d4e00 !important;
+}
+
+.char-counter-badge.char-counter-danger {
+  border: 1px solid #cf222e !important;
+  background-color: #ffebe9 !important;
+  color: #cf222e !important;
+  font-weight: 600 !important;
+}
+
+/* Dark Theme (Django admin dark mode or OS dark mode) */
+html[data-theme="dark"] .char-counter-badge,
+body[data-theme="dark"] .char-counter-badge,
+body.theme-dark .char-counter-badge,
+@media (prefers-color-scheme: dark) {
+  .char-counter-badge.char-counter-empty {
+    border: 1px solid #444c56 !important;
+    background-color: #22272e !important;
+    color: #adbac7 !important;
+  }
+
+  .char-counter-badge.char-counter-under {
+    border: 1px solid #388bfd !important;
+    background-color: #162a45 !important;
+    color: #79c0ff !important;
+  }
+
+  .char-counter-badge.char-counter-optimal {
+    border: 1px solid #347d39 !important;
+    background-color: #173b22 !important;
+    color: #57ab5a !important;
+    font-weight: 600 !important;
+  }
+
+  .char-counter-badge.char-counter-warning {
+    border: 1px solid #966600 !important;
+    background-color: #3b2c04 !important;
+    color: #c69026 !important;
+  }
+
+  .char-counter-badge.char-counter-danger {
+    border: 1px solid #c93c37 !important;
+    background-color: #3e1f23 !important;
+    color: #f47067 !important;
+    font-weight: 600 !important;
+  }
+}
